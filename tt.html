@@ -3,170 +3,704 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IP 查询 | GitHub版</title>
+    <meta name="description" content="快速查询您的公网IP地址及地理位置信息">
+    <title>IP 查询工具 | 专业版</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            line-height: 1.6;
+        :root {
+            --primary-color: #4CAF50;
+            --primary-hover: #45a049;
+            --danger-color: #f44336;
+            --warning-color: #ff9800;
+            --bg-color: #f0f2f5;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+            --border-color: #ddd;
+            --shadow: 0 2px 8px rgba(0,0,0,0.1);
+            --shadow-hover: 0 4px 16px rgba(0,0,0,0.15);
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #1a1a1a;
+            --card-bg: #2d2d2d;
+            --text-color: #e0e0e0;
+            --border-color: #444;
+            --shadow: 0 2px 8px rgba(0,0,0,0.3);
+            --shadow-hover: 0 4px 16px rgba(0,0,0,0.4);
+        }
+
+        * {
+            box-sizing: border-box;
             margin: 0;
-            padding: 20px;
-            background-color: #f0f0f0;
+            padding: 0;
         }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.6;
+            padding: 20px;
+            background: var(--bg-color);
+            color: var(--text-color);
+            transition: background 0.3s, color 0.3s;
+        }
+
         .container {
-            max-width: 800px;
+            max-width: 900px;
             margin: 0 auto;
-            background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            transition: background 0.3s, box-shadow 0.3s;
         }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
         h1 {
-            text-align: center;
-        }
-        #main-ip {
             font-size: 2em;
-            text-align: center;
-            margin-bottom: 20px;
+            color: var(--text-color);
         }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        #refresh-btn {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        #refresh-btn:hover:not(:disabled) {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(76, 175, 80, 0.3);
+        }
+
+        #refresh-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        #theme-toggle {
+            background: var(--border-color);
+            color: var(--text-color);
+        }
+
+        #theme-toggle:hover {
+            background: var(--text-color);
+            color: var(--card-bg);
+        }
+
+        #copy-btn {
+            background: #2196F3;
+            color: white;
+        }
+
+        #copy-btn:hover {
+            background: #0b7dda;
+            transform: translateY(-2px);
+        }
+
+        .main-ip-card {
+            background: linear-gradient(135deg, var(--primary-color), #8BC34A);
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            text-align: center;
+            color: white;
+            box-shadow: var(--shadow);
+        }
+
+        .main-ip-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+            margin-bottom: 10px;
+        }
+
+        #main-ip {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 10px;
+            word-break: break-all;
+        }
+
+        #last-update {
+            font-size: 0.85em;
+            opacity: 0.9;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
         }
+
         th, td {
-            padding: 10px;
-            border: 1px solid #ddd;
+            padding: 15px;
             text-align: left;
+            border-bottom: 1px solid var(--border-color);
         }
+
         th {
-            background-color: #f2f2f2;
+            background: var(--bg-color);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.85em;
+            letter-spacing: 0.5px;
         }
-        .loading {
-            color: #888;
+
+        tr:last-child td {
+            border-bottom: none;
         }
-        #refresh-btn {
-            display: block;
-            margin: 20px auto;
-            padding: 10px 20px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
+
+        tbody tr {
+            transition: background 0.2s;
         }
-        #refresh-btn:hover {
-            background-color: #45a049;
+
+        tbody tr:hover {
+            background: var(--bg-color);
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: 600;
+        }
+
+        .status-success {
+            background: #c8e6c9;
+            color: #2e7d32;
+        }
+
+        .status-error {
+            background: #ffcdd2;
+            color: #c62828;
+        }
+
+        .status-cached {
+            background: #fff9c4;
+            color: #f57f17;
+        }
+
+        .status-loading {
+            background: #e1f5fe;
+            color: #0277bd;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .stat-card {
+            padding: 15px;
+            background: var(--bg-color);
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .stat-label {
+            font-size: 0.85em;
+            color: var(--text-color);
+            opacity: 0.7;
+            margin-top: 5px;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--text-color);
+            color: var(--card-bg);
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: var(--shadow-hover);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s;
+            z-index: 1000;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 1.5em;
+            }
+
+            #main-ip {
+                font-size: 1.8em;
+            }
+
+            .header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .controls {
+                width: 100%;
+            }
+
+            button {
+                flex: 1;
+            }
+
+            th, td {
+                padding: 10px;
+                font-size: 0.9em;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>IP 查询</h1>
-        <div id="main-ip">正在获取IP...</div>
-        <table id="ip-table">
-            <tr>
-                <th>IP</th>
-                <th>运营商</th>
-                <th>地址</th>
-            </tr>
-        </table>
-        <button id="refresh-btn">刷新数据</button>
+        <div class="header">
+            <h1>🌐 IP 查询工具</h1>
+            <div class="controls">
+                <button id="refresh-btn" aria-label="刷新IP数据">
+                    <span>🔄</span> 刷新
+                </button>
+                <button id="copy-btn" aria-label="复制IP地址">
+                    <span>📋</span> 复制IP
+                </button>
+                <button id="theme-toggle" aria-label="切换主题">
+                    <span id="theme-icon">🌙</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="main-ip-card fade-in">
+            <div class="main-ip-label">您的公网IP地址</div>
+            <div id="main-ip">正在获取...</div>
+            <div id="last-update">等待数据...</div>
+        </div>
+
+        <div class="table-container">
+            <table id="ip-table">
+                <thead>
+                    <tr>
+                        <th>数据源</th>
+                        <th>IP地址</th>
+                        <th>运营商/组织</th>
+                        <th>地理位置</th>
+                        <th>状态</th>
+                    </tr>
+                </thead>
+                <tbody id="table-body">
+                </tbody>
+            </table>
+        </div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-value" id="success-count">0</div>
+                <div class="stat-label">成功查询</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="avg-time">0ms</div>
+                <div class="stat-label">平均响应</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="total-queries">0</div>
+                <div class="stat-label">总查询次数</div>
+            </div>
+        </div>
     </div>
+
+    <div id="toast" class="toast"></div>
 
     <script>
         const API_ENDPOINTS = [
-            { url: 'https://api.ipify.org?format=json', name: 'IPify' },
-            { url: 'https://ipapi.co/json/', name: 'IPAPI.co' },
-            { url: 'https://ipinfo.io/json', name: 'IPInfo.io' }
+            { 
+                url: 'https://api.ipify.org?format=json', 
+                name: 'IPify',
+                parse: (data) => ({ 
+                    ip: data.ip,
+                    org: '未提供',
+                    location: '未提供'
+                })
+            },
+            { 
+                url: 'https://ipapi.co/json/', 
+                name: 'IPAPI.co',
+                parse: (data) => ({
+                    ip: data.ip,
+                    org: data.org || data.asn || '未知',
+                    location: [data.city, data.region, data.country_name].filter(Boolean).join(', ') || '未知'
+                })
+            },
+            { 
+                url: 'https://ipinfo.io/json', 
+                name: 'IPInfo.io',
+                parse: (data) => ({
+                    ip: data.ip,
+                    org: data.org || '未知',
+                    location: [data.city, data.region, data.country].filter(Boolean).join(', ') || '未知'
+                })
+            }
         ];
 
-        async function fetchWithTimeout(url, timeout = 5000) {
+        const CACHE_KEY = 'ipInfo_cache';
+        const CACHE_DURATION = 5 * 60 * 1000;
+        const REQUEST_TIMEOUT = 8000;
+
+        let stats = {
+            successCount: 0,
+            totalTime: 0,
+            totalQueries: parseInt(localStorage.getItem('totalQueries') || '0')
+        };
+
+        let isRefreshing = false;
+
+        async function fetchWithTimeout(url, timeout = REQUEST_TIMEOUT) {
             const controller = new AbortController();
-            const id = setTimeout(() => controller.abort(), timeout);
+            const timeoutId = setTimeout(() => controller.abort(), timeout);
+            
             try {
-                const response = await fetch(url, { signal: controller.signal });
-                clearTimeout(id);
+                const response = await fetch(url, { 
+                    signal: controller.signal,
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+                clearTimeout(timeoutId);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                
                 return response;
             } catch (error) {
-                clearTimeout(id);
+                clearTimeout(timeoutId);
+                if (error.name === 'AbortError') {
+                    throw new Error('请求超时');
+                }
                 throw error;
             }
         }
 
-        function updateTable(data, source) {
-            const table = document.getElementById('ip-table');
-            const row = table.insertRow(-1);
-            const ip = data.ip || data.query || '未知';
-            row.insertCell(0).textContent = ip;
-            row.insertCell(1).textContent = data.org || data.as || data.isp || '未知';
-            row.insertCell(2).textContent = `${data.city || ''}, ${data.region || ''}, ${data.country || ''}`;
-            row.dataset.source = source;
-            return ip;
+        function showToast(message, duration = 3000) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, duration);
         }
 
-        async function getIPInfo() {
-            const table = document.getElementById('ip-table');
-            const mainIP = document.getElementById('main-ip');
+        function updateMainIP(ip, timestamp) {
+            const mainIPEl = document.getElementById('main-ip');
+            const lastUpdateEl = document.getElementById('last-update');
             
-            mainIP.textContent = '正在获取IP...';
-            
-            // 显示加载状态
-            table.innerHTML = '<tr><th>IP</th><th>运营商</th><th>地址</th></tr>';
-            
-            // 先显示缓存数据
-            loadCachedData();
-            
-            let firstValidIP = null;
+            mainIPEl.textContent = ip;
+            lastUpdateEl.textContent = `最后更新: ${new Date(timestamp).toLocaleString('zh-CN')}`;
+        }
 
-            for (let endpoint of API_ENDPOINTS) {
-                try {
-                    const response = await fetchWithTimeout(endpoint.url);
-                    const data = await response.json();
-                    
-                    // 保存到localStorage
-                    localStorage.setItem('ipInfo', JSON.stringify(data));
-                    
-                    const ip = updateTable(data, endpoint.name);
-                    if (!firstValidIP) {
-                        firstValidIP = ip;
-                    }
-                } catch (error) {
-                    console.error('Error fetching from', endpoint.url, ':', error);
-                    const row = table.insertRow(-1);
-                    row.insertCell(0).textContent = '获取失败';
-                    row.insertCell(1).textContent = '获取失败';
-                    row.insertCell(2).textContent = '获取失败';
-                    row.dataset.source = endpoint.name;
-                }
+        function updateStats() {
+            document.getElementById('success-count').textContent = stats.successCount;
+            document.getElementById('avg-time').textContent = 
+                stats.successCount > 0 
+                    ? Math.round(stats.totalTime / stats.successCount) + 'ms'
+                    : '0ms';
+            document.getElementById('total-queries').textContent = stats.totalQueries;
+        }
+
+        function addTableRow(source, data, status, responseTime = null) {
+            const tbody = document.getElementById('table-body');
+            const row = tbody.insertRow();
+            row.className = 'fade-in';
+            
+            row.insertCell(0).textContent = source;
+            row.insertCell(1).textContent = data.ip || '获取失败';
+            row.insertCell(2).textContent = data.org || '获取失败';
+            row.insertCell(3).textContent = data.location || '获取失败';
+            
+            const statusCell = row.insertCell(4);
+            const badge = document.createElement('span');
+            badge.className = `status-badge status-${status}`;
+            
+            if (status === 'loading') {
+                badge.innerHTML = '<span class="loading-spinner"></span>';
+            } else if (status === 'success') {
+                badge.textContent = responseTime ? `${responseTime}ms` : '成功';
+            } else if (status === 'error') {
+                badge.textContent = '失败';
+            } else if (status === 'cached') {
+                badge.textContent = '缓存';
             }
             
-            if (firstValidIP) {
-                mainIP.textContent = firstValidIP;
-            } else {
-                mainIP.textContent = '获取失败';
-            }
+            statusCell.appendChild(badge);
+            
+            return row;
+        }
+
+        function clearTable() {
+            document.getElementById('table-body').innerHTML = '';
         }
 
         function loadCachedData() {
-            const cachedData = localStorage.getItem('ipInfo');
-            if (cachedData) {
-                try {
-                    const data = JSON.parse(cachedData);
-                    const mainIP = document.getElementById('main-ip');
-                    if (!mainIP.textContent || mainIP.textContent === '正在获取IP...') {
-                        mainIP.textContent = data.ip || data.query || '未知';
-                    }
-                    updateTable(data, '缓存');
-                } catch (e) {
-                    console.error('Error parsing cached data:', e);
+            try {
+                const cached = localStorage.getItem(CACHE_KEY);
+                if (!cached) return false;
+                
+                const { data, timestamp } = JSON.parse(cached);
+                const age = Date.now() - timestamp;
+                
+                if (age > CACHE_DURATION) {
+                    localStorage.removeItem(CACHE_KEY);
+                    return false;
                 }
+                
+                if (data.length > 0) {
+                    const firstValid = data.find(item => item.status === 'success');
+                    if (firstValid) {
+                        updateMainIP(firstValid.data.ip, timestamp);
+                    }
+                    
+                    data.forEach(item => {
+                        addTableRow(item.source, item.data, 'cached');
+                    });
+                    
+                    return true;
+                }
+            } catch (error) {
+                console.error('加载缓存失败:', error);
+            }
+            
+            return false;
+        }
+
+        function saveCacheData(results) {
+            try {
+                const cacheData = {
+                    data: results,
+                    timestamp: Date.now()
+                };
+                localStorage.setItem(CACHE_KEY, JSON.stringify(cacheData));
+            } catch (error) {
+                console.error('保存缓存失败:', error);
             }
         }
 
-        document.getElementById('refresh-btn').addEventListener('click', getIPInfo);
+        async function fetchIPInfo(endpoint) {
+            const startTime = performance.now();
+            
+            try {
+                const response = await fetchWithTimeout(endpoint.url);
+                const rawData = await response.json();
+                const data = endpoint.parse(rawData);
+                const responseTime = Math.round(performance.now() - startTime);
+                
+                stats.successCount++;
+                stats.totalTime += responseTime;
+                
+                return {
+                    source: endpoint.name,
+                    data,
+                    status: 'success',
+                    responseTime
+                };
+            } catch (error) {
+                console.error(`${endpoint.name} 查询失败:`, error);
+                return {
+                    source: endpoint.name,
+                    data: { ip: '获取失败', org: error.message, location: '-' },
+                    status: 'error'
+                };
+            }
+        }
 
-        // 首先加载缓存数据，然后获取新数据
-        loadCachedData();
-        getIPInfo();
+        async function getIPInfo(showCache = true) {
+            if (isRefreshing) return;
+            
+            isRefreshing = true;
+            const refreshBtn = document.getElementById('refresh-btn');
+            refreshBtn.disabled = true;
+            refreshBtn.innerHTML = '<span class="loading-spinner"></span> 查询中...';
+            
+            clearTable();
+            stats.successCount = 0;
+            stats.totalTime = 0;
+            
+            if (showCache) {
+                const hasCachedData = loadCachedData();
+                if (hasCachedData) {
+                    showToast('已加载缓存数据，正在刷新...');
+                }
+            }
+            
+            const results = await Promise.all(
+                API_ENDPOINTS.map(endpoint => fetchIPInfo(endpoint))
+            );
+            
+            if (!showCache) {
+                clearTable();
+            }
+            
+            results.forEach(result => {
+                addTableRow(result.source, result.data, result.status, result.responseTime);
+            });
+            
+            const firstValid = results.find(r => r.status === 'success');
+            if (firstValid) {
+                updateMainIP(firstValid.data.ip, Date.now());
+                showToast('✅ IP信息已更新');
+            } else {
+                document.getElementById('main-ip').textContent = '获取失败';
+                showToast('❌ 所有数据源查询失败', 4000);
+            }
+            
+            saveCacheData(results);
+            
+            stats.totalQueries++;
+            localStorage.setItem('totalQueries', stats.totalQueries);
+            updateStats();
+            
+            refreshBtn.disabled = false;
+            refreshBtn.innerHTML = '<span>🔄</span> 刷新';
+            isRefreshing = false;
+        }
+
+        function copyIPToClipboard() {
+            const ip = document.getElementById('main-ip').textContent;
+            
+            if (ip === '正在获取...' || ip === '获取失败') {
+                showToast('⚠️ 暂无可复制的IP地址');
+                return;
+            }
+            
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(ip)
+                    .then(() => showToast('✅ IP已复制到剪贴板'))
+                    .catch(() => fallbackCopy(ip));
+            } else {
+                fallbackCopy(ip);
+            }
+        }
+
+        function fallbackCopy(text) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.style.position = 'fixed';
+            textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.select();
+            
+            try {
+                document.execCommand('copy');
+                showToast('✅ IP已复制到剪贴板');
+            } catch (error) {
+                showToast('❌ 复制失败，请手动复制');
+            }
+            
+            document.body.removeChild(textarea);
+        }
+
+        function toggleTheme() {
+            const html = document.documentElement;
+            const currentTheme = html.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            
+            const icon = document.getElementById('theme-icon');
+            icon.textContent = newTheme === 'dark' ? '☀️' : '🌙';
+        }
+
+        function initTheme() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            const theme = savedTheme === 'system' ? (prefersDark ? 'dark' : 'light') : savedTheme;
+            
+            document.documentElement.setAttribute('data-theme', theme);
+            document.getElementById('theme-icon').textContent = theme === 'dark' ? '☀️' : '🌙';
+        }
+
+        document.getElementById('refresh-btn').addEventListener('click', () => getIPInfo(false));
+        document.getElementById('copy-btn').addEventListener('click', copyIPToClipboard);
+        document.getElementById('theme-toggle').addEventListener('click', toggleTheme);
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'r' && (e.ctrlKey || e.metaKey)) {
+                e.preventDefault();
+                getIPInfo(false);
+            } else if (e.key === 'c' && (e.ctrlKey || e.metaKey) && e.shiftKey) {
+                e.preventDefault();
+                copyIPToClipboard();
+            }
+        });
+
+        initTheme();
+        updateStats();
+        getIPInfo(true);
     </script>
 </body>
 </html>

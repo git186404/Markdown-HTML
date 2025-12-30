@@ -1,275 +1,1131 @@
-
-<html>
+<!doctype html>
+<html lang="zh-CN">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Markdown 与 HTML 双向转换器 - 像素风格</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/2.0.3/marked.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/turndown/7.1.1/turndown.min.js"></script>
-<script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
-<link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
-<style>
-  :root {
-    --primary-color: #0096FA;
-    --secondary-color: #E4E7ED;
-    --text-color: #333;
-    --background-color: #F8F8F8;
-  }
-  
-  body {
-    font-family: 'Arial', sans-serif;
-    margin: 0;
-    padding: 0;
-    background-color: var(--background-color);
-    color: var(--text-color);
-  }
-  
-  .container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 20px;
-  }
-  
-  header {
-    background-color: white;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    padding: 10px 0;
-  }
-  
-  h1 {
-    text-align: center;
-    color: var(--primary-color);
-    font-size: 24px;
-    margin: 0;
-  }
-  
-  .tab {
-    display: flex;
-    background-color: white;
-    border-radius: 4px;
-    overflow: hidden;
-    margin-bottom: 20px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  }
-  
-  .tab button {
-    flex: 1;
-    background-color: transparent;
-    border: none;
-    outline: none;
-    cursor: pointer;
-    padding: 14px 16px;
-    transition: 0.3s;
-    font-size: 16px;
-    color: var(--text-color);
-    border-bottom: 3px solid transparent;
-  }
-  
-  .tab button:hover {
-    background-color: var(--secondary-color);
-  }
-  
-  .tab button.active {
-    border-bottom: 3px solid var(--primary-color);
-    color: var(--primary-color);
-  }
-  
-  .tabcontent {
-    display: none;
-    background-color: white;
-    padding: 20px;
-    border-radius: 4px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  }
-  
-  textarea, #editor {
-    width: 100%;
-    height: 300px;
-    margin-bottom: 20px;
-    padding: 10px;
-    border: 1px solid var(--secondary-color);
-    border-radius: 4px;
-    font-size: 14px;
-    resize: vertical;
-  }
-  
-  button {
-    background-color: var(--primary-color);
-    border: none;
-    color: white;
-    padding: 10px 20px;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 16px;
-    margin: 4px 2px;
-    cursor: pointer;
-    border-radius: 4px;
-    transition: background-color 0.3s;
-  }
-  
-  button:hover {
-    background-color: #0078c8;
-  }
-  
-  .output-container {
-    display: flex;
-    gap: 20px;
-  }
-  
-  .output-box {
-    flex: 1;
-    border: 1px solid var(--secondary-color);
-    padding: 20px;
-    margin-top: 20px;
-    background-color: white;
-    border-radius: 4px;
-    min-height: 200px;
-  }
-  
-  .ql-toolbar.ql-snow {
-    border: 1px solid var(--secondary-color);
-    border-radius: 4px 4px 0 0;
-  }
-  
-  .ql-container.ql-snow {
-    border: 1px solid var(--secondary-color);
-    border-top: none;
-    border-radius: 0 0 4px 4px;
-  }
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="在浏览器中进行 Markdown 与 HTML 的双向转换，支持预览、复制、导入导出与撰写模式。" />
+  <meta name="color-scheme" content="light dark" />
+  <title>Markdown ↔ HTML 双向转换器</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/2.0.3/marked.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/turndown/7.1.1/turndown.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
+
+  <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+  <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet" />
+
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --bg-grad-a: #f8fafc;
+      --bg-grad-b: #eef2ff;
+
+      --hero-text: rgba(15, 23, 42, 0.92);
+      --hero-muted: rgba(15, 23, 42, 0.62);
+      --glass-bg: rgba(255, 255, 255, 0.65);
+      --glass-border: rgba(15, 23, 42, 0.12);
+      --hover-bg: rgba(15, 23, 42, 0.06);
+
+      --card: rgba(255, 255, 255, 0.92);
+      --card-solid: #ffffff;
+      --text: #0f172a;
+      --muted: rgba(15, 23, 42, 0.65);
+      --border: rgba(15, 23, 42, 0.12);
+      --shadow: 0 10px 25px rgba(0, 0, 0, 0.10);
+
+      --primary: #2563eb;
+      --primary-2: #1d4ed8;
+      --danger: #ef4444;
+      --success: #16a34a;
+
+      --radius: 14px;
+      --radius-sm: 10px;
+      --gap: 14px;
+
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --font: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
+
+      --kbd-bg: rgba(15, 23, 42, 0.08);
+      --kbd-border: rgba(15, 23, 42, 0.12);
+      --kbd-text: rgba(15, 23, 42, 0.88);
+
+      --focus: 0 0 0 4px rgba(37, 99, 235, 0.22);
+    }
+
+    html[data-theme="dark"] {
+      --bg: #0b1220;
+      --bg-grad-a: #0b1220;
+      --bg-grad-b: #121a2e;
+
+      --hero-text: rgba(255, 255, 255, 0.95);
+      --hero-muted: rgba(255, 255, 255, 0.68);
+      --glass-bg: rgba(255, 255, 255, 0.12);
+      --glass-border: rgba(255, 255, 255, 0.18);
+      --hover-bg: rgba(255, 255, 255, 0.16);
+
+      --card: rgba(16, 23, 42, 0.82);
+      --card-solid: #0f172a;
+      --text: rgba(248, 250, 252, 0.92);
+      --muted: rgba(248, 250, 252, 0.62);
+      --border: rgba(148, 163, 184, 0.20);
+      --shadow: 0 14px 35px rgba(0, 0, 0, 0.35);
+
+      --kbd-bg: rgba(255, 255, 255, 0.14);
+      --kbd-border: rgba(255, 255, 255, 0.18);
+      --kbd-text: rgba(255, 255, 255, 0.92);
+
+      --focus: 0 0 0 4px rgba(37, 99, 235, 0.28);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: var(--font);
+      color: var(--text);
+      background: radial-gradient(1200px 700px at 10% -10%, rgba(37, 99, 235, 0.30), transparent 55%),
+                  radial-gradient(900px 600px at 85% 0%, rgba(99, 102, 241, 0.22), transparent 50%),
+                  linear-gradient(135deg, var(--bg-grad-a), var(--bg-grad-b));
+      min-height: 100vh;
+    }
+
+    a { color: inherit; }
+
+    .app {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 22px 16px 42px;
+    }
+
+    .header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .brand {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .title {
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: var(--hero-text);
+      line-height: 1.1;
+    }
+
+    .subtitle {
+      font-size: 13px;
+      color: var(--hero-muted);
+      line-height: 1.4;
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      background: var(--glass-bg);
+      color: var(--hero-text);
+      border: 1px solid var(--glass-border);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      font-size: 13px;
+      user-select: none;
+    }
+
+    .pill input { accent-color: var(--primary); }
+
+    .tabs {
+      display: inline-flex;
+      padding: 6px;
+      border-radius: 999px;
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      gap: 6px;
+      margin-bottom: 14px;
+    }
+
+    .tab-btn {
+      border: none;
+      cursor: pointer;
+      border-radius: 999px;
+      padding: 10px 14px;
+      font-weight: 700;
+      font-size: 14px;
+      color: var(--hero-muted);
+      background: transparent;
+      transition: transform 0.08s ease, background-color 0.2s ease;
+    }
+
+    .tab-btn:hover { background: var(--hover-bg); }
+    .tab-btn:active { transform: translateY(1px); }
+
+    .tab-btn[aria-selected="true"] {
+      background: var(--card-solid);
+      color: var(--text);
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .card + .card { margin-top: 14px; }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(0deg, rgba(255, 255, 255, 0.10), rgba(255, 255, 255, 0.10));
+    }
+
+    html[data-theme="dark"] .card-header {
+      background: linear-gradient(0deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.06));
+    }
+
+    .card-title {
+      font-weight: 700;
+      font-size: 14px;
+      letter-spacing: 0.01em;
+    }
+
+    .meta {
+      font-size: 12px;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: flex-end;
+    }
+
+    .btn {
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.70);
+      color: var(--text);
+      border-radius: 999px;
+      padding: 9px 12px;
+      font-weight: 600;
+      font-size: 13px;
+      cursor: pointer;
+      transition: transform 0.08s ease, background-color 0.18s ease, border-color 0.18s ease;
+    }
+
+    html[data-theme="dark"] .btn {
+      background: rgba(15, 23, 42, 0.55);
+    }
+
+    .btn:hover { background: rgba(255, 255, 255, 0.82); }
+    html[data-theme="dark"] .btn:hover { background: rgba(15, 23, 42, 0.72); }
+
+    .btn:active { transform: translateY(1px); }
+
+    .btn:focus-visible,
+    select:focus-visible,
+    textarea:focus-visible {
+      outline: none;
+      box-shadow: var(--focus);
+    }
+
+    .btn.primary {
+      background: var(--primary);
+      border-color: rgba(255, 255, 255, 0.0);
+      color: #ffffff;
+    }
+
+    .btn.primary:hover { background: var(--primary-2); }
+
+    .btn.danger {
+      background: rgba(239, 68, 68, 0.16);
+      color: #b91c1c;
+      border-color: rgba(239, 68, 68, 0.28);
+    }
+
+    html[data-theme="dark"] .btn.danger {
+      background: rgba(239, 68, 68, 0.18);
+      color: rgba(254, 202, 202, 0.92);
+    }
+
+    .control-row {
+      display: flex;
+      gap: 10px;
+      padding: 12px 14px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .control-row .group {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .label {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--muted);
+    }
+
+    select {
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.70);
+      color: var(--text);
+      border-radius: 999px;
+      padding: 9px 12px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    html[data-theme="dark"] select { background: rgba(15, 23, 42, 0.55); }
+
+    .layout {
+      display: grid;
+      gap: var(--gap);
+      grid-template-columns: repeat(12, 1fr);
+      padding: 0 14px 14px;
+    }
+
+    .panel { height: 100%; }
+
+    .panel.input { grid-column: span 5; }
+    .panel.preview { grid-column: span 4; }
+    .panel.output { grid-column: span 3; }
+
+    @media (max-width: 1080px) {
+      .panel.input { grid-column: span 12; }
+      .panel.preview { grid-column: span 7; }
+      .panel.output { grid-column: span 5; }
+    }
+
+    @media (max-width: 760px) {
+      .header { flex-direction: column; align-items: stretch; }
+      .top-actions { justify-content: flex-start; }
+      .panel.preview, .panel.output { grid-column: span 12; }
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 420px;
+      padding: 14px;
+      border: none;
+      background: transparent;
+      color: var(--text);
+      font-family: var(--mono);
+      font-size: 13px;
+      line-height: 1.6;
+      resize: vertical;
+      outline: none;
+    }
+
+    .body {
+      padding: 0;
+    }
+
+    .preview-area {
+      padding: 14px;
+      min-height: 420px;
+      overflow: auto;
+    }
+
+    .preview-area :first-child { margin-top: 0; }
+
+    .preview-area pre,
+    .code-block {
+      font-family: var(--mono);
+      font-size: 13px;
+      line-height: 1.55;
+      background: rgba(15, 23, 42, 0.06);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 12px;
+      overflow: auto;
+      white-space: pre;
+    }
+
+    html[data-theme="dark"] .preview-area pre,
+    html[data-theme="dark"] .code-block {
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    .code-block {
+      margin: 0;
+      min-height: 420px;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .seg {
+      display: inline-flex;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      overflow: hidden;
+      background: rgba(255, 255, 255, 0.55);
+    }
+
+    html[data-theme="dark"] .seg { background: rgba(15, 23, 42, 0.55); }
+
+    .seg button {
+      border: none;
+      background: transparent;
+      padding: 8px 10px;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .seg button[aria-pressed="true"] {
+      background: rgba(37, 99, 235, 0.16);
+      color: var(--text);
+    }
+
+    .hidden { display: none !important; }
+
+    /* Quill tweaks for theme */
+    #editor {
+      height: 420px;
+    }
+
+    html[data-theme="dark"] .ql-toolbar.ql-snow,
+    html[data-theme="dark"] .ql-container.ql-snow {
+      border-color: var(--border);
+    }
+
+    html[data-theme="dark"] .ql-toolbar.ql-snow {
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    html[data-theme="dark"] .ql-container.ql-snow {
+      background: rgba(15, 23, 42, 0.18);
+      color: var(--text);
+    }
+
+    html[data-theme="dark"] .ql-editor { color: var(--text); }
+    html[data-theme="dark"] .ql-snow .ql-stroke { stroke: rgba(248, 250, 252, 0.75); }
+    html[data-theme="dark"] .ql-snow .ql-fill { fill: rgba(248, 250, 252, 0.75); }
+    html[data-theme="dark"] .ql-snow .ql-picker { color: rgba(248, 250, 252, 0.75); }
+
+    .toast {
+      position: fixed;
+      right: 16px;
+      bottom: 16px;
+      max-width: min(420px, calc(100vw - 32px));
+      background: rgba(15, 23, 42, 0.92);
+      color: rgba(255, 255, 255, 0.95);
+      padding: 10px 12px;
+      border-radius: 12px;
+      box-shadow: 0 16px 45px rgba(0, 0, 0, 0.40);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      transform: translateY(8px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.18s ease, transform 0.18s ease;
+      font-size: 13px;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .kbd {
+      font-family: var(--mono);
+      font-size: 12px;
+      background: var(--kbd-bg);
+      border: 1px solid var(--kbd-border);
+      padding: 2px 6px;
+      border-radius: 8px;
+      color: var(--kbd-text);
+    }
+  </style>
 </head>
 <body>
-<header>
-  <h1>Markdown 与 HTML 双向转换器 - 像素风格</h1>
-</header>
-<div class="container">
-  <div class="tab">
-    <button class="tablinks" onclick="openTab(event, 'CodeView')" id="defaultOpen">代码转换</button>
-    <button class="tablinks" onclick="openTab(event, 'WritingView')">撰写视图</button>
-  </div>
-
-  <div id="CodeView" class="tabcontent">
-    <textarea id="input" placeholder="在此输入Markdown或HTML代码..."></textarea>
-    <div>
-      <button onclick="convertToHTML()">转换为HTML</button>
-      <button onclick="convertToMarkdown()">转换为Markdown</button>
-      <button onclick="copyOutput('html')">复制HTML</button>
-      <button onclick="copyOutput('markdown')">复制Markdown</button>
-    </div>
-    <div class="output-container">
-      <div class="output-box">
-        <h3>HTML 输出</h3>
-        <div id="htmlOutput"></div>
+  <div class="app">
+    <header class="header">
+      <div class="brand">
+        <div class="title">Markdown ↔ HTML 双向转换器</div>
+        <div class="subtitle">
+          纯前端本地运行：自动识别输入类型、实时预览、复制与导入导出。快捷键：<span class="kbd">Ctrl</span> + <span class="kbd">Enter</span> 手动转换 / <span class="kbd">Ctrl</span> + <span class="kbd">L</span> 清空。
+        </div>
       </div>
-      <div class="output-box">
-        <h3>Markdown 输出</h3>
-        <pre id="markdownOutput"></pre>
+
+      <div class="top-actions">
+        <label class="pill" title="开启后会在输入时自动转换（有 300ms 防抖）">
+          <input id="autoToggle" type="checkbox" />
+          <span>自动转换</span>
+        </label>
+        <label class="pill" title="切换深色主题（会记住你的选择）">
+          <input id="themeToggle" type="checkbox" />
+          <span>深色</span>
+        </label>
       </div>
-    </div>
+    </header>
+
+    <nav class="tabs" role="tablist" aria-label="主视图切换">
+      <button class="tab-btn" id="tab-code" role="tab" aria-selected="true" aria-controls="panel-code" type="button">代码转换</button>
+      <button class="tab-btn" id="tab-write" role="tab" aria-selected="false" aria-controls="panel-write" type="button">撰写视图</button>
+    </nav>
+
+    <section class="card" id="panel-code" role="tabpanel" aria-labelledby="tab-code">
+      <div class="card-header">
+        <div>
+          <div class="card-title">转换工作台</div>
+          <div class="meta" id="codeMeta">输入：-</div>
+        </div>
+
+        <div class="toolbar">
+          <div class="group">
+            <span class="label">输入类型</span>
+            <select id="inputMode" aria-label="输入类型">
+              <option value="auto">自动识别</option>
+              <option value="markdown">Markdown</option>
+              <option value="html">HTML</option>
+            </select>
+          </div>
+
+          <button class="btn primary" id="btnConvert" type="button">转换 / 刷新预览</button>
+          <button class="btn" id="btnImport" type="button">导入文件</button>
+          <button class="btn" id="btnExport" type="button">导出当前输出</button>
+          <button class="btn" id="btnCopy" type="button">复制当前输出</button>
+          <button class="btn danger" id="btnClear" type="button">清空</button>
+        </div>
+      </div>
+
+      <div class="layout">
+        <div class="card panel input">
+          <div class="card-header">
+            <div class="card-title">输入</div>
+            <div class="meta" id="inputMeta">0 行 · 0 字符</div>
+          </div>
+          <div class="body">
+            <textarea id="source" placeholder="在此粘贴/输入 Markdown 或 HTML...\n\n提示：支持把文件拖进来导入。"></textarea>
+          </div>
+        </div>
+
+        <div class="card panel preview">
+          <div class="card-header">
+            <div class="card-title">预览（已消毒）</div>
+            <div class="meta" id="previewMeta">-</div>
+          </div>
+          <div class="preview-area" id="preview"></div>
+        </div>
+
+        <div class="card panel output">
+          <div class="card-header">
+            <div class="card-title">输出</div>
+            <div class="seg" role="group" aria-label="输出类型切换">
+              <button type="button" id="segHtml" aria-pressed="true">HTML</button>
+              <button type="button" id="segMd" aria-pressed="false">Markdown</button>
+            </div>
+          </div>
+          <pre id="outHtml" class="code-block" aria-label="HTML 输出"></pre>
+          <pre id="outMd" class="code-block hidden" aria-label="Markdown 输出"></pre>
+        </div>
+      </div>
+    </section>
+
+    <section class="card hidden" id="panel-write" role="tabpanel" aria-labelledby="tab-write">
+      <div class="card-header">
+        <div>
+          <div class="card-title">撰写模式（Quill）</div>
+          <div class="meta" id="writeMeta">-</div>
+        </div>
+
+        <div class="toolbar">
+          <button class="btn" id="btnLoadFromCode" type="button">从代码输入载入</button>
+          <button class="btn" id="btnSyncToCode" type="button">同步到代码输入</button>
+          <button class="btn" id="btnWriteCopy" type="button">复制当前输出</button>
+          <button class="btn" id="btnWriteExport" type="button">导出当前输出</button>
+        </div>
+      </div>
+
+      <div class="layout">
+        <div class="card panel input">
+          <div class="card-header">
+            <div class="card-title">编辑</div>
+            <div class="meta" id="editorMeta">-</div>
+          </div>
+          <div id="editor"></div>
+        </div>
+
+        <div class="card panel preview">
+          <div class="card-header">
+            <div class="card-title">预览（已消毒）</div>
+            <div class="meta" id="writePreviewMeta">-</div>
+          </div>
+          <div class="preview-area" id="writePreview"></div>
+        </div>
+
+        <div class="card panel output">
+          <div class="card-header">
+            <div class="card-title">输出</div>
+            <div class="seg" role="group" aria-label="撰写输出类型切换">
+              <button type="button" id="segWriteHtml" aria-pressed="true">HTML</button>
+              <button type="button" id="segWriteMd" aria-pressed="false">Markdown</button>
+            </div>
+          </div>
+          <pre id="writeOutHtml" class="code-block" aria-label="撰写 HTML 输出"></pre>
+          <pre id="writeOutMd" class="code-block hidden" aria-label="撰写 Markdown 输出"></pre>
+        </div>
+      </div>
+    </section>
   </div>
 
-  <div id="WritingView" class="tabcontent">
-    <div id="editor"></div>
-    <button onclick="syncContentToMarkdown()">同步为Markdown</button>
-    <button onclick="syncContentToHTML()">同步为HTML</button>
-  </div>
-</div>
+  <input id="fileInput" type="file" class="hidden" accept=".md,.markdown,.html,.htm,.txt" />
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
-<script>
-let quill;
+  <script>
+    const STORAGE_KEY = 'md-html-toolkit:index:v2';
 
-function openTab(evt, tabName) {
-  var i, tabcontent, tablinks;
-  tabcontent = document.getElementsByClassName("tabcontent");
-  for (i = 0; i < tabcontent.length; i++) {
-    tabcontent[i].style.display = "none";
-  }
-  tablinks = document.getElementsByClassName("tablinks");
-  for (i = 0; i < tablinks.length; i++) {
-    tablinks[i].className = tablinks[i].className.replace(" active", "");
-  }
-  document.getElementById(tabName).style.display = "block";
-  evt.currentTarget.className += " active";
+    const els = {
+      autoToggle: document.getElementById('autoToggle'),
+      themeToggle: document.getElementById('themeToggle'),
 
-  if (tabName === 'WritingView' && !quill) {
-    quill = new Quill('#editor', {
-      theme: 'snow',
-      modules: {
-        toolbar: [
-          [{ 'header': [1, 2, 3, false] }],
-          ['bold', 'italic', 'underline', 'strike'],
-          ['link', 'image'],
-          [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-          ['clean']
-        ]
-      }
-    });
-  }
-}
+      tabCode: document.getElementById('tab-code'),
+      tabWrite: document.getElementById('tab-write'),
+      panelCode: document.getElementById('panel-code'),
+      panelWrite: document.getElementById('panel-write'),
 
-function convertToHTML() {
-  const input = document.getElementById('input').value;
-  const turndownService = new TurndownService();
-  const markdownOutput = turndownService.turndown(input);
-  const htmlOutput = marked(input);
-  document.getElementById('htmlOutput').innerHTML = htmlOutput;
-  document.getElementById('markdownOutput').textContent = markdownOutput;
-}
+      inputMode: document.getElementById('inputMode'),
+      btnConvert: document.getElementById('btnConvert'),
+      btnImport: document.getElementById('btnImport'),
+      btnExport: document.getElementById('btnExport'),
+      btnCopy: document.getElementById('btnCopy'),
+      btnClear: document.getElementById('btnClear'),
+      fileInput: document.getElementById('fileInput'),
 
-function convertToMarkdown() {
-  const input = document.getElementById('input').value;
-  const turndownService = new TurndownService();
-  const markdownOutput = turndownService.turndown(input);
-  const htmlOutput = marked(markdownOutput);
-  document.getElementById('htmlOutput').innerHTML = htmlOutput;
-  document.getElementById('markdownOutput').textContent = markdownOutput;
-}
+      codeMeta: document.getElementById('codeMeta'),
+      inputMeta: document.getElementById('inputMeta'),
+      previewMeta: document.getElementById('previewMeta'),
 
-function copyOutput(type) {
-  const output = type === 'html' ? document.getElementById('htmlOutput').innerHTML : document.getElementById('markdownOutput').textContent;
-  navigator.clipboard.writeText(output).then(() => {
-    alert(`已复制${type === 'html' ? 'HTML' : 'Markdown'}到剪贴板！`);
-  });
-}
+      source: document.getElementById('source'),
+      preview: document.getElementById('preview'),
+      outHtml: document.getElementById('outHtml'),
+      outMd: document.getElementById('outMd'),
+      segHtml: document.getElementById('segHtml'),
+      segMd: document.getElementById('segMd'),
 
-function syncContentToMarkdown() {
-  const editorContent = quill.root.innerHTML;
-  const turndownService = new TurndownService();
-  const markdownContent = turndownService.turndown(editorContent);
-  document.getElementById('input').value = markdownContent;
-  document.getElementById('htmlOutput').innerHTML = editorContent;
-  document.getElementById('markdownOutput').textContent = markdownContent;
-  alert('内容已同步为Markdown和HTML格式！');
-}
+      btnLoadFromCode: document.getElementById('btnLoadFromCode'),
+      btnSyncToCode: document.getElementById('btnSyncToCode'),
+      btnWriteCopy: document.getElementById('btnWriteCopy'),
+      btnWriteExport: document.getElementById('btnWriteExport'),
 
-function syncContentToHTML() {
-  const editorContent = quill.root.innerHTML;
-  document.getElementById('input').value = editorContent;
-  document.getElementById('htmlOutput').innerHTML = editorContent;
-  const turndownService = new TurndownService();
-  const markdownContent = turndownService.turndown(editorContent);
-  document.getElementById('markdownOutput').textContent = markdownContent;
-  alert('内容已同步为HTML和Markdown格式！');
-}
+      writeMeta: document.getElementById('writeMeta'),
+      editorMeta: document.getElementById('editorMeta'),
+      writePreviewMeta: document.getElementById('writePreviewMeta'),
+      writePreview: document.getElementById('writePreview'),
+      writeOutHtml: document.getElementById('writeOutHtml'),
+      writeOutMd: document.getElementById('writeOutMd'),
+      segWriteHtml: document.getElementById('segWriteHtml'),
+      segWriteMd: document.getElementById('segWriteMd'),
 
-document.addEventListener("DOMContentLoaded", function() {
-  document.getElementById("defaultOpen").click();
-});
+      toast: document.getElementById('toast'),
+    };
 
-// 防抖处理自动检测转换
-let convertTimeout;
-document.getElementById('input').addEventListener('input', function() {
-  clearTimeout(convertTimeout);
-  convertTimeout = setTimeout(() => {
-    const input = this.value.trim();
-    if (input.startsWith('<')) {
-      convertToMarkdown();
-    } else {
-      convertToHTML();
+    const defaultState = {
+      theme: 'auto',
+      autoConvert: true,
+      inputMode: 'auto',
+      mainTab: 'code',
+      outputKind: 'html',
+      writeOutputKind: 'html',
+      source: '',
+      quillHtml: '',
+    };
+
+    let state = { ...defaultState };
+    let quill;
+    let lastCodeResult = { kind: 'markdown', html: '', markdown: '' };
+    let lastWriteResult = { html: '', markdown: '' };
+    let convertTimeout;
+    let toastTimer;
+
+    function showToast(message) {
+      clearTimeout(toastTimer);
+      els.toast.textContent = message;
+      els.toast.classList.add('show');
+      toastTimer = setTimeout(() => els.toast.classList.remove('show'), 1600);
     }
-  }, 300);
-});
-</script>
+
+    function safeSanitize(html) {
+      try {
+        if (window.DOMPurify && typeof window.DOMPurify.sanitize === 'function') {
+          return window.DOMPurify.sanitize(html, { USE_PROFILES: { html: true } });
+        }
+      } catch (_) {
+        // ignore
+      }
+      return html;
+    }
+
+    function detectKind(text) {
+      const trimmed = (text || '').trim();
+      if (!trimmed) return 'markdown';
+
+      // A conservative heuristic: if it contains any HTML tag (opening/closing/self-closing), treat as HTML.
+      const hasTag = /<\/?[a-z][\s\S]*?>/i.test(trimmed);
+      return hasTag ? 'html' : 'markdown';
+    }
+
+    function getSelectedKind() {
+      const mode = state.inputMode;
+      if (mode === 'markdown' || mode === 'html') return mode;
+      return detectKind(els.source.value);
+    }
+
+    function markdownToHtml(markdown) {
+      return marked(markdown || '');
+    }
+
+    function htmlToMarkdown(html) {
+      const turndownService = new TurndownService({
+        codeBlockStyle: 'fenced',
+        emDelimiter: '_',
+      });
+      return turndownService.turndown(html || '');
+    }
+
+    function formatInputMeta(text) {
+      const lines = (text.match(/\n/g) || []).length + 1;
+      const chars = text.length;
+      return `${lines} 行 · ${chars} 字符`;
+    }
+
+    function renderCodeView(force = false) {
+      const text = els.source.value || '';
+      state.source = text;
+
+      const selectedKind = getSelectedKind();
+
+      let html;
+      let markdown;
+      if (selectedKind === 'markdown') {
+        markdown = text;
+        html = markdownToHtml(markdown);
+      } else {
+        html = text;
+        markdown = htmlToMarkdown(html);
+      }
+
+      lastCodeResult = { kind: selectedKind, html, markdown };
+
+      const sanitizedPreview = safeSanitize(html);
+      els.preview.innerHTML = sanitizedPreview;
+      els.outHtml.textContent = html;
+      els.outMd.textContent = markdown;
+
+      els.inputMeta.textContent = formatInputMeta(text);
+      els.previewMeta.textContent = selectedKind === 'markdown' ? '来源：Markdown 渲染' : '来源：HTML（原样预览）';
+      els.codeMeta.textContent = `输入：${selectedKind.toUpperCase()} · 输出：HTML + Markdown`;
+
+      persistState();
+
+      if (force) showToast('已刷新预览与输出');
+    }
+
+    function applyOutputKind(kind) {
+      state.outputKind = kind;
+      const isHtml = kind === 'html';
+      els.segHtml.setAttribute('aria-pressed', String(isHtml));
+      els.segMd.setAttribute('aria-pressed', String(!isHtml));
+      els.outHtml.classList.toggle('hidden', !isHtml);
+      els.outMd.classList.toggle('hidden', isHtml);
+      persistState();
+    }
+
+    function applyWriteOutputKind(kind) {
+      state.writeOutputKind = kind;
+      const isHtml = kind === 'html';
+      els.segWriteHtml.setAttribute('aria-pressed', String(isHtml));
+      els.segWriteMd.setAttribute('aria-pressed', String(!isHtml));
+      els.writeOutHtml.classList.toggle('hidden', !isHtml);
+      els.writeOutMd.classList.toggle('hidden', isHtml);
+      persistState();
+    }
+
+    async function copyText(text) {
+      const value = text == null ? '' : String(text);
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          await navigator.clipboard.writeText(value);
+          return true;
+        }
+      } catch (_) {
+        // ignore
+      }
+
+      // Fallback
+      const ta = document.createElement('textarea');
+      ta.value = value;
+      ta.style.position = 'fixed';
+      ta.style.top = '-9999px';
+      ta.style.left = '-9999px';
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      try {
+        const ok = document.execCommand('copy');
+        document.body.removeChild(ta);
+        return ok;
+      } catch (_) {
+        document.body.removeChild(ta);
+        return false;
+      }
+    }
+
+    function downloadText(filename, content) {
+      const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    function pickExportName(kind) {
+      const d = new Date();
+      const pad = (n) => String(n).padStart(2, '0');
+      const stamp = `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}-${pad(d.getHours())}${pad(d.getMinutes())}`;
+      return kind === 'html' ? `output-${stamp}.html` : `output-${stamp}.md`;
+    }
+
+    function setTheme(theme) {
+      state.theme = theme;
+
+      const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const isDark = theme === 'dark' || (theme === 'auto' && prefersDark);
+      document.documentElement.dataset.theme = isDark ? 'dark' : 'light';
+      els.themeToggle.checked = isDark;
+
+      persistState();
+    }
+
+    function setMainTab(tab) {
+      state.mainTab = tab;
+      const isCode = tab === 'code';
+
+      els.tabCode.setAttribute('aria-selected', String(isCode));
+      els.tabWrite.setAttribute('aria-selected', String(!isCode));
+
+      els.panelCode.classList.toggle('hidden', !isCode);
+      els.panelWrite.classList.toggle('hidden', isCode);
+
+      if (!isCode) {
+        ensureQuill();
+        renderWriteView();
+      }
+
+      persistState();
+    }
+
+    function ensureQuill() {
+      if (quill) return;
+      quill = new Quill('#editor', {
+        theme: 'snow',
+        modules: {
+          toolbar: [
+            [{ header: [1, 2, 3, false] }],
+            ['bold', 'italic', 'underline', 'strike'],
+            [{ list: 'ordered' }, { list: 'bullet' }],
+            ['blockquote', 'code-block'],
+            ['link', 'image'],
+            ['clean'],
+          ],
+        },
+      });
+
+      if (state.quillHtml) {
+        quill.clipboard.dangerouslyPasteHTML(state.quillHtml);
+      }
+
+      quill.on('text-change', () => {
+        state.quillHtml = quill.root.innerHTML;
+        if (state.autoConvert) {
+          clearTimeout(convertTimeout);
+          convertTimeout = setTimeout(renderWriteView, 300);
+        }
+        persistState();
+      });
+    }
+
+    function renderWriteView(force = false) {
+      if (!quill) return;
+      const html = quill.root.innerHTML || '';
+      const markdown = htmlToMarkdown(html);
+
+      lastWriteResult = { html, markdown };
+
+      els.writePreview.innerHTML = safeSanitize(html);
+      els.writeOutHtml.textContent = html;
+      els.writeOutMd.textContent = markdown;
+
+      const plainText = (quill.getText() || '').trim();
+      els.editorMeta.textContent = `${plainText.length} 字符 · ${(plainText.match(/\n/g) || []).length + 1} 行`;
+      els.writePreviewMeta.textContent = '来源：编辑器 HTML';
+      els.writeMeta.textContent = `输出：HTML + Markdown`;
+
+      persistState();
+      if (force) showToast('已刷新撰写输出');
+    }
+
+    function persistState() {
+      const toSave = {
+        theme: state.theme,
+        autoConvert: state.autoConvert,
+        inputMode: state.inputMode,
+        mainTab: state.mainTab,
+        outputKind: state.outputKind,
+        writeOutputKind: state.writeOutputKind,
+        source: state.source,
+        quillHtml: state.quillHtml,
+      };
+
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
+      } catch (_) {
+        // ignore
+      }
+    }
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return;
+        const parsed = JSON.parse(raw);
+        state = { ...defaultState, ...parsed };
+      } catch (_) {
+        state = { ...defaultState };
+      }
+    }
+
+    function debounceCodeConvert() {
+      clearTimeout(convertTimeout);
+      convertTimeout = setTimeout(() => renderCodeView(false), 300);
+    }
+
+    async function handleCopyCurrentOutput() {
+      if (state.mainTab === 'write') {
+        ensureQuill();
+        renderWriteView(false);
+      } else {
+        renderCodeView(false);
+      }
+
+      const kind = state.mainTab === 'write' ? state.writeOutputKind : state.outputKind;
+      const result = state.mainTab === 'write' ? lastWriteResult : lastCodeResult;
+      const text = kind === 'html' ? result.html : result.markdown;
+      const ok = await copyText(text);
+      showToast(ok ? `已复制 ${kind.toUpperCase()} 到剪贴板` : '复制失败（浏览器限制）');
+    }
+
+    function handleExportCurrentOutput() {
+      if (state.mainTab === 'write') {
+        ensureQuill();
+        renderWriteView(false);
+      } else {
+        renderCodeView(false);
+      }
+
+      const kind = state.mainTab === 'write' ? state.writeOutputKind : state.outputKind;
+      const result = state.mainTab === 'write' ? lastWriteResult : lastCodeResult;
+      const text = kind === 'html' ? result.html : result.markdown;
+      downloadText(pickExportName(kind), text);
+      showToast(`已导出 ${kind.toUpperCase()} 文件`);
+    }
+
+    function setupEvents() {
+      // Tabs
+      els.tabCode.addEventListener('click', () => setMainTab('code'));
+      els.tabWrite.addEventListener('click', () => setMainTab('write'));
+
+      // Code controls
+      els.inputMode.addEventListener('change', () => {
+        state.inputMode = els.inputMode.value;
+        renderCodeView(true);
+      });
+
+      els.btnConvert.addEventListener('click', () => renderCodeView(true));
+
+      els.btnClear.addEventListener('click', () => {
+        els.source.value = '';
+        state.source = '';
+        renderCodeView(true);
+        showToast('已清空');
+      });
+
+      els.btnImport.addEventListener('click', () => els.fileInput.click());
+
+      els.fileInput.addEventListener('change', async () => {
+        const file = els.fileInput.files && els.fileInput.files[0];
+        if (!file) return;
+
+        const text = await file.text();
+        els.source.value = text;
+        state.source = text;
+        renderCodeView(true);
+        showToast(`已导入：${file.name}`);
+        els.fileInput.value = '';
+      });
+
+      els.btnExport.addEventListener('click', handleExportCurrentOutput);
+      els.btnCopy.addEventListener('click', handleCopyCurrentOutput);
+
+      els.segHtml.addEventListener('click', () => applyOutputKind('html'));
+      els.segMd.addEventListener('click', () => applyOutputKind('markdown'));
+
+      // Source input
+      els.source.addEventListener('input', () => {
+        if (!state.autoConvert) {
+          state.source = els.source.value || '';
+          els.inputMeta.textContent = formatInputMeta(state.source);
+          persistState();
+          return;
+        }
+        debounceCodeConvert();
+      });
+
+      // Drag & drop import
+      els.source.addEventListener('dragover', (e) => {
+        e.preventDefault();
+      });
+      els.source.addEventListener('drop', async (e) => {
+        e.preventDefault();
+        const file = e.dataTransfer.files && e.dataTransfer.files[0];
+        if (!file) return;
+        const text = await file.text();
+        els.source.value = text;
+        state.source = text;
+        renderCodeView(true);
+        showToast(`已导入：${file.name}`);
+      });
+
+      // Global toggles
+      els.autoToggle.addEventListener('change', () => {
+        state.autoConvert = els.autoToggle.checked;
+        persistState();
+        if (state.mainTab === 'code') renderCodeView(true);
+        if (state.mainTab === 'write') renderWriteView(true);
+      });
+
+      els.themeToggle.addEventListener('change', () => {
+        setTheme(els.themeToggle.checked ? 'dark' : 'light');
+      });
+
+      // Writing controls
+      els.segWriteHtml.addEventListener('click', () => applyWriteOutputKind('html'));
+      els.segWriteMd.addEventListener('click', () => applyWriteOutputKind('markdown'));
+
+      els.btnWriteCopy.addEventListener('click', handleCopyCurrentOutput);
+      els.btnWriteExport.addEventListener('click', handleExportCurrentOutput);
+
+      els.btnSyncToCode.addEventListener('click', () => {
+        ensureQuill();
+        const html = quill.root.innerHTML || '';
+        els.source.value = html;
+        state.source = html;
+        state.inputMode = 'html';
+        els.inputMode.value = 'html';
+        renderCodeView(true);
+        setMainTab('code');
+        showToast('已同步到代码输入（HTML）');
+      });
+
+      els.btnLoadFromCode.addEventListener('click', () => {
+        ensureQuill();
+        const kind = getSelectedKind();
+        const html = kind === 'markdown' ? markdownToHtml(els.source.value || '') : (els.source.value || '');
+        quill.clipboard.dangerouslyPasteHTML(html);
+        state.quillHtml = quill.root.innerHTML;
+        renderWriteView(true);
+        showToast('已从代码输入载入到编辑器');
+      });
+
+      // Keyboard shortcuts
+      document.addEventListener('keydown', (e) => {
+        const isMac = navigator.platform.toUpperCase().includes('MAC');
+        const mod = isMac ? e.metaKey : e.ctrlKey;
+
+        if (!mod) return;
+
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          if (state.mainTab === 'code') renderCodeView(true);
+          if (state.mainTab === 'write') renderWriteView(true);
+          return;
+        }
+
+        if (e.key.toLowerCase() === 'l') {
+          e.preventDefault();
+          if (state.mainTab === 'code') {
+            els.source.value = '';
+            state.source = '';
+            renderCodeView(true);
+            showToast('已清空');
+          }
+        }
+      });
+    }
+
+    function init() {
+      loadState();
+
+      els.autoToggle.checked = !!state.autoConvert;
+      els.inputMode.value = state.inputMode;
+
+      // Theme: auto -> follow system (checkbox reflects actual)
+      setTheme(state.theme);
+
+      // Restore content
+      els.source.value = state.source || '';
+
+      applyOutputKind(state.outputKind);
+      applyWriteOutputKind(state.writeOutputKind);
+
+      setupEvents();
+
+      // Initial render
+      renderCodeView(false);
+      setMainTab(state.mainTab);
+    }
+
+    init();
+  </script>
 </body>
 </html>

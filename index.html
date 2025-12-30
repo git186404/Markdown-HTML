@@ -1171,7 +1171,7 @@
         };
 
         document.getElementById('btnCopy').addEventListener('click', () => {
-          const text = state.outputFormat === 'html' ? $.outputCode.textContent : $.outputCode.textContent;
+          const text = $.outputCode.textContent;
           utils.copyText(text).then(ok => {
             utils.showToast(ok ? '已复制到剪贴板' : '复制失败');
           });
@@ -1180,7 +1180,7 @@
         // 导出
         document.getElementById('btnExport').addEventListener('click', () => {
           const format = state.outputFormat;
-          const content = format === 'html' ? $.preview.innerHTML : $.outputCode.textContent;
+          const content = $.outputCode.textContent;
           utils.downloadFile(utils.getFilename(format), content);
           utils.showToast(`${format.toUpperCase()} 已导出`);
         });

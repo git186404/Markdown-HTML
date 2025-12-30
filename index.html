@@ -30,7 +30,7 @@
       --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
       --radius: 12px;
       --gap: 20px;
-      
+
       --font-display: "Space Grotesk", -apple-system, BlinkMacSystemFont, sans-serif;
       --font-body: "Crimson Pro", Georgia, serif;
       --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
@@ -135,14 +135,7 @@
       border-bottom: 2px solid var(--accent);
     }
 
-    .workspace {
-      display: grid;
-      grid-template-columns: repeat(12, 1fr);
-      gap: var(--gap);
-    }
-
-    .panel {
-      grid-column: span 4;
+    .card {
       background: var(--bg);
       border: 1px solid var(--border);
       border-radius: var(--radius);
@@ -151,25 +144,35 @@
       contain: layout style paint;
     }
 
-    .panel-header {
+    .card-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
       padding: 16px;
       border-bottom: 1px solid var(--border);
       background: var(--bg-subtle);
+      flex-wrap: wrap;
+      gap: 12px;
     }
 
-    .panel-title {
+    .card-title {
       font-family: var(--font-display);
       font-size: 14px;
       font-weight: 600;
       color: var(--text);
     }
 
-    .panel-actions {
+    .meta {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .toolbar {
       display: flex;
       gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
     }
 
     .btn {
@@ -186,8 +189,85 @@
 
     .btn:hover { background: var(--accent-subtle); }
     .btn:active { transform: scale(0.98); }
+    .btn.primary { background: var(--accent); color: white; border-color: var(--accent); }
+    .btn.primary:hover { background: #1d4ed8; }
+    .btn.danger { color: #dc2626; }
+    .btn.danger:hover { background: rgba(220, 38, 38, 0.1); }
 
-    .panel-body {
+    .group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+    }
+
+    .group .label {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .group select {
+      padding: 4px 8px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 12px;
+      font-family: var(--font-display);
+      cursor: pointer;
+    }
+
+    .seg {
+      display: flex;
+      gap: 2px;
+      padding: 2px;
+      background: var(--bg-subtle);
+      border-radius: 6px;
+    }
+
+    .seg button {
+      padding: 4px 10px;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      font-family: var(--font-display);
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      border-radius: 4px;
+      transition: all 0.2s ease;
+    }
+
+    .seg button:hover { color: var(--text); }
+    .seg button[aria-pressed="true"] {
+      background: var(--bg);
+      color: var(--text);
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--gap);
+      padding: var(--gap);
+    }
+
+    .panel {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      contain: layout style paint;
+    }
+
+    .panel .card-header {
+      border-radius: 0;
+    }
+
+    .body {
       padding: 16px;
     }
 
@@ -204,12 +284,13 @@
       outline: none;
     }
 
-    .preview-content {
+    .preview-area {
       min-height: 420px;
       overflow: auto;
+      padding: 16px;
     }
 
-    .preview-content pre {
+    .preview-area pre {
       background: var(--bg-subtle);
       border: 1px solid var(--border);
       border-radius: 6px;
@@ -219,14 +300,20 @@
       font-size: 12px;
     }
 
-    .output-code {
+    .code-block {
       white-space: pre-wrap;
       word-break: break-word;
       font-family: var(--font-mono);
       font-size: 12px;
+      padding: 16px;
+      min-height: 420px;
+      overflow: auto;
+      margin: 0;
     }
 
-    .status {
+    .hidden { display: none !important; }
+
+    .toast {
       position: fixed;
       bottom: 20px;
       right: 20px;
@@ -239,11 +326,22 @@
       opacity: 0;
       pointer-events: none;
       transition: all 0.2s ease;
+      z-index: 1000;
     }
 
-    .status.show {
+    .toast.show {
       opacity: 1;
       transform: translateY(0);
+    }
+
+    #editor {
+      min-height: 420px;
+    }
+
+    #fileInput {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
     }
 
     .kbd {
@@ -256,8 +354,7 @@
     }
 
     @media (max-width: 900px) {
-      .workspace { grid-template-columns: 1fr; }
-      .panel { grid-column: span 1; }
+      .layout { grid-template-columns: 1fr; }
       .header { grid-template-columns: 1fr; gap: 16px; }
       .controls { justify-self: start; }
     }
@@ -272,7 +369,7 @@
           纯前端本地运行：自动识别输入类型、实时预览、复制与导入导出
         </p>
       </div>
-      
+
       <div class="controls">
         <label class="toggle" title="开启后会在输入时自动转换">
           <input id="autoToggle" type="checkbox">
@@ -286,52 +383,9 @@
     </header>
 
     <nav class="tabs" role="tablist">
-      <button class="tab active" data-tab="code" role="tab">代码转换</button>
-      <button class="tab" data-tab="write" role="tab">撰写视图</button>
+      <button class="tab active" data-tab="code" role="tab" id="tab-code">代码转换</button>
+      <button class="tab" data-tab="write" role="tab" id="tab-write">撰写视图</button>
     </nav>
-
-    <main class="workspace" id="workspace">
-      <div class="panel">
-        <div class="panel-header">
-          <h2 class="panel-title">输入</h2>
-          <div class="panel-actions">
-            <button class="btn" id="clearInput">清空</button>
-            <button class="btn" id="importFile">导入</button>
-          </div>
-        </div>
-        <div class="panel-body">
-          <textarea id="inputArea" placeholder="粘贴 Markdown 或 HTML 代码..."></textarea>
-        </div>
-      </div>
-
-      <div class="panel">
-        <div class="panel-header">
-          <h2 class="panel-title">预览</h2>
-          <div class="panel-actions">
-            <button class="btn" id="refreshPreview">刷新</button>
-          </div>
-        </div>
-        <div class="panel-body">
-          <div class="preview-content" id="previewArea"></div>
-        </div>
-      </div>
-
-      <div class="panel">
-        <div class="panel-header">
-          <h2 class="panel-title">输出</h2>
-          <div class="panel-actions">
-            <button class="btn" id="copyOutput">复制</button>
-            <button class="btn" id="saveFile">保存</button>
-          </div>
-        </div>
-        <div class="panel-body">
-          <pre class="output-code" id="outputArea"></pre>
-        </div>
-      </div>
-    </main>
-  </div>
-
-  <div class="status" id="status"></div>
 
     <section class="card" id="panel-code" role="tabpanel" aria-labelledby="tab-code">
       <div class="card-header">
@@ -365,7 +419,9 @@
             <div class="meta" id="inputMeta">0 行 · 0 字符</div>
           </div>
           <div class="body">
-            <textarea id="source" placeholder="在此粘贴/输入 Markdown 或 HTML...\n\n提示：支持把文件拖进来导入。"></textarea>
+            <textarea id="source" placeholder="在此粘贴/输入 Markdown 或 HTML...
+
+提示：支持把文件拖进来导入。"></textarea>
           </div>
         </div>
 
@@ -438,7 +494,7 @@
     </section>
   </div>
 
-  <input id="fileInput" type="file" class="hidden" accept=".md,.markdown,.html,.htm,.txt" />
+  <input id="fileInput" type="file" accept=".md,.markdown,.html,.htm,.txt" />
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
   <script>
@@ -529,7 +585,6 @@
       const trimmed = (text || '').trim();
       if (!trimmed) return 'markdown';
 
-      // A conservative heuristic: if it contains any HTML tag (opening/closing/self-closing), treat as HTML.
       const hasTag = /<\/?[a-z][\s\S]*?>/i.test(trimmed);
       return hasTag ? 'html' : 'markdown';
     }
@@ -621,7 +676,6 @@
         // ignore
       }
 
-      // Fallback
       const ta = document.createElement('textarea');
       ta.value = value;
       ta.style.position = 'fixed';
@@ -674,8 +728,8 @@
       state.mainTab = tab;
       const isCode = tab === 'code';
 
-      els.tabCode.setAttribute('aria-selected', String(isCode));
-      els.tabWrite.setAttribute('aria-selected', String(!isCode));
+      els.tabCode.classList.toggle('active', isCode);
+      els.tabWrite.classList.toggle('active', !isCode);
 
       els.panelCode.classList.toggle('hidden', !isCode);
       els.panelWrite.classList.toggle('hidden', isCode);
@@ -804,11 +858,9 @@
     }
 
     function setupEvents() {
-      // Tabs
       els.tabCode.addEventListener('click', () => setMainTab('code'));
       els.tabWrite.addEventListener('click', () => setMainTab('write'));
 
-      // Code controls
       els.inputMode.addEventListener('change', () => {
         state.inputMode = els.inputMode.value;
         renderCodeView(true);
@@ -843,7 +895,6 @@
       els.segHtml.addEventListener('click', () => applyOutputKind('html'));
       els.segMd.addEventListener('click', () => applyOutputKind('markdown'));
 
-      // Source input
       els.source.addEventListener('input', () => {
         if (!state.autoConvert) {
           state.source = els.source.value || '';
@@ -854,10 +905,10 @@
         debounceCodeConvert();
       });
 
-      // Drag & drop import
       els.source.addEventListener('dragover', (e) => {
         e.preventDefault();
       });
+
       els.source.addEventListener('drop', async (e) => {
         e.preventDefault();
         const file = e.dataTransfer.files && e.dataTransfer.files[0];
@@ -869,7 +920,6 @@
         showToast(`已导入：${file.name}`);
       });
 
-      // Global toggles
       els.autoToggle.addEventListener('change', () => {
         state.autoConvert = els.autoToggle.checked;
         persistState();
@@ -881,7 +931,6 @@
         setTheme(els.themeToggle.checked ? 'dark' : 'light');
       });
 
-      // Writing controls
       els.segWriteHtml.addEventListener('click', () => applyWriteOutputKind('html'));
       els.segWriteMd.addEventListener('click', () => applyWriteOutputKind('markdown'));
 
@@ -910,7 +959,6 @@
         showToast('已从代码输入载入到编辑器');
       });
 
-      // Keyboard shortcuts
       document.addEventListener('keydown', (e) => {
         const isMac = navigator.platform.toUpperCase().includes('MAC');
         const mod = isMac ? e.metaKey : e.ctrlKey;
@@ -942,10 +990,8 @@
       els.autoToggle.checked = !!state.autoConvert;
       els.inputMode.value = state.inputMode;
 
-      // Theme: auto -> follow system (checkbox reflects actual)
       setTheme(state.theme);
 
-      // Restore content
       els.source.value = state.source || '';
 
       applyOutputKind(state.outputKind);
@@ -953,7 +999,6 @@
 
       setupEvents();
 
-      // Initial render
       renderCodeView(false);
       setMainTab(state.mainTab);
     }

@@ -133,7 +133,7 @@
         <h2>IP 信息查询</h2>
         <input type="text" id="ip-input" placeholder="输入IP地址（可选，默认查询当前IP）">
         <button onclick="getIPInfo()">查询 IP 信息</button>
-        <div id="ip-info"></div>
+        <div id="ip-info">输入IP地址后点击查询按钮</div>
     </div>
 </div>
 
@@ -158,8 +158,11 @@
     }
 
     function generateUUID() {
+        var d = new Date().getTime();
         var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-            var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+            var r = (d + Math.random() * 16) % 16 | 0;
+            d = Math.floor(d / 16);
+            var v = c === 'x' ? r : (r & 0x3 | 0x8);
             return v.toString(16);
         });
         document.getElementById("uuid-result").textContent = uuid;
@@ -169,8 +172,10 @@
         var ipAddress = document.getElementById("ip-input").value;
         var useragentinfoUrl = 'https://ip.useragentinfo.com/json' + (ipAddress ? '?ip=' + ipAddress : '');
         var ipapiUrl = ipAddress ? `https://ipapi.co/${ipAddress}/json/` : 'https://ipapi.co/json/';
-        var ipApiComUrl = `http://ip-api.com/json/${ipAddress}`;
-
+        var ipApiComUrl = `https://ip-api.com/json/${ipAddress}`;
+        
+        document.getElementById("ip-info").innerHTML = '<p style="text-align:center;color:#5a67d8;">正在查询IP信息...</p>';
+        
         Promise.allSettled([
             fetch(useragentinfoUrl).then(response => response.json()),
             fetch(ipapiUrl).then(response => response.json()),

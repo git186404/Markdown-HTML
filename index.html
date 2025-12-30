@@ -1,5 +1,6 @@
 
-<html><head><base href="https://markdowntohtml.com/">
+<html>
+<head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Markdown 与 HTML 双向转换器 - 像素风格</title>
@@ -209,16 +210,19 @@ function openTab(evt, tabName) {
 
 function convertToHTML() {
   const input = document.getElementById('input').value;
+  const turndownService = new TurndownService();
+  const markdownOutput = turndownService.turndown(input);
   const htmlOutput = marked(input);
   document.getElementById('htmlOutput').innerHTML = htmlOutput;
-  document.getElementById('markdownOutput').textContent = input;
+  document.getElementById('markdownOutput').textContent = markdownOutput;
 }
 
 function convertToMarkdown() {
   const input = document.getElementById('input').value;
   const turndownService = new TurndownService();
   const markdownOutput = turndownService.turndown(input);
-  document.getElementById('htmlOutput').innerHTML = input;
+  const htmlOutput = marked(markdownOutput);
+  document.getElementById('htmlOutput').innerHTML = htmlOutput;
   document.getElementById('markdownOutput').textContent = markdownOutput;
 }
 
@@ -249,16 +253,22 @@ function syncContentToHTML() {
   alert('内容已同步为HTML和Markdown格式！');
 }
 
-document.getElementById("defaultOpen").click();
+document.addEventListener("DOMContentLoaded", function() {
+  document.getElementById("defaultOpen").click();
+});
 
-// 自动检测并转换输入
+// 防抖处理自动检测转换
+let convertTimeout;
 document.getElementById('input').addEventListener('input', function() {
-  const input = this.value.trim();
-  if (input.startsWith('<')) {
-    convertToMarkdown();
-  } else {
-    convertToHTML();
-  }
+  clearTimeout(convertTimeout);
+  convertTimeout = setTimeout(() => {
+    const input = this.value.trim();
+    if (input.startsWith('<')) {
+      convertToMarkdown();
+    } else {
+      convertToHTML();
+    }
+  }, 300);
 });
 </script>
 </body>

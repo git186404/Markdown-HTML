@@ -4,12 +4,12 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="在浏览器中进行 Markdown 与 HTML 的双向转换，支持预览、复制、导入导出与撰写模式。" />
-  <meta name="color-scheme" content="light dark" />
+  <meta name="color-scheme" content="light" />
   <title>Markdown ↔ HTML 双向转换器</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Crimson+Pro:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500;700&display=swap" rel="stylesheet" />
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/2.0.3/marked.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/turndown/7.1.1/turndown.min.js"></script>
@@ -20,31 +20,20 @@
 
   <style>
     :root {
-      --bg: #fefefe;
-      --bg-subtle: #f9f9f9;
-      --text: #111827;
-      --text-muted: #6b7280;
-      --border: #e5e7eb;
-      --accent: #2563eb;
-      --accent-subtle: rgba(37, 99, 235, 0.08);
-      --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+      --bg: #ffffff;
+      --bg-subtle: #f8f9fa;
+      --text: #1a1a1a;
+      --text-muted: #6c757d;
+      --border: #e9ecef;
+      --accent: #0d6efd;
+      --accent-subtle: rgba(13, 110, 253, 0.1);
+      --shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
       --radius: 12px;
-      --gap: 20px;
+      --gap: 24px;
 
-      --font-display: "Space Grotesk", -apple-system, BlinkMacSystemFont, sans-serif;
-      --font-body: "Crimson Pro", Georgia, serif;
-      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-    }
-
-    html[data-theme="dark"] {
-      --bg: #0b0f14;
-      --bg-subtle: #111827;
-      --text: #f9fafb;
-      --text-muted: #9ca3af;
-      --border: #1f2937;
-      --accent: #60a5fa;
-      --accent-subtle: rgba(96, 165, 250, 0.12);
-      --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.30), 0 4px 6px -2px rgba(0, 0, 0, 0.20);
+      --font-display: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --font-body: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --font-mono: "Fira Code", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -73,11 +62,15 @@
 
     .brand h1 {
       font-family: var(--font-display);
-      font-size: 32px;
+      font-size: 36px;
       font-weight: 700;
       color: var(--text);
       letter-spacing: -0.02em;
       margin-bottom: 8px;
+      background: linear-gradient(135deg, var(--accent), #6366f1);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
 
     .brand .subtitle {
@@ -96,43 +89,66 @@
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      padding: 8px 12px;
-      background: var(--accent-subtle);
+      padding: 10px 16px;
+      background: var(--bg);
       border: 1px solid var(--border);
       border-radius: 999px;
-      font-size: 13px;
+      font-size: 14px;
       cursor: pointer;
       transition: all 0.2s ease;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
     }
 
-    .toggle:hover { transform: translateY(-1px); }
-    .toggle input { accent-color: var(--accent); }
+    .toggle:hover {
+      transform: translateY(-1px);
+      background: var(--bg-subtle);
+      border-color: var(--accent);
+    }
+    
+    .toggle:active {
+      transform: translateY(0);
+    }
+    
+    .toggle input {
+      accent-color: var(--accent);
+      width: 18px;
+      height: 18px;
+    }
 
     .tabs {
       display: flex;
       gap: 4px;
       margin-bottom: 24px;
+      background: var(--bg-subtle);
+      padding: 4px;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
     }
 
     .tab {
-      padding: 12px 16px;
-      background: var(--bg-subtle);
-      border: 1px solid var(--border);
-      border-bottom: none;
+      padding: 12px 20px;
+      background: transparent;
+      border: none;
       font-family: var(--font-display);
       font-weight: 500;
       font-size: 14px;
       cursor: pointer;
       transition: all 0.2s ease;
       position: relative;
+      border-radius: 8px;
+      color: var(--text-muted);
     }
 
-    .tab:first-child { border-radius: var(--radius) 0 0 0; }
-    .tab:last-child { border-radius: 0 var(--radius) 0 0; }
-    .tab:hover { background: var(--accent-subtle); }
+    .tab:first-child { border-radius: var(--radius) 0 0 var(--radius); }
+    .tab:last-child { border-radius: 0 var(--radius) var(--radius) 0; }
+    .tab:hover { 
+      background: var(--accent-subtle);
+      color: var(--text);
+    }
     .tab.active {
       background: var(--bg);
-      border-bottom: 2px solid var(--accent);
+      color: var(--accent);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
     }
 
     .panel-code,
@@ -161,7 +177,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 16px;
+      padding: 16px 20px;
       border-bottom: 1px solid var(--border);
       background: var(--bg-subtle);
       flex-wrap: wrap;
@@ -170,13 +186,13 @@
 
     .panel-title {
       font-family: var(--font-display);
-      font-size: 14px;
+      font-size: 15px;
       font-weight: 600;
       color: var(--text);
     }
 
     .meta {
-      font-size: 12px;
+      font-size: 13px;
       color: var(--text-muted);
       margin-top: 2px;
     }
@@ -209,12 +225,28 @@
 
     .editor-container .ql-editor {
       min-height: 360px;
-      color: var(--text);
+      color: var(--text) !important;
+      font-family: var(--font-body) !important;
+      font-size: 16px !important;
+      line-height: 1.6 !important;
     }
 
     .editor-container .ql-editor.ql-blank::before {
-      color: var(--text-muted);
-      font-style: normal;
+      color: var(--text-muted) !important;
+      font-style: normal !important;
+      opacity: 0.7;
+    }
+    
+    /* Ensure Quill toolbar has proper contrast */
+    .editor-container .ql-toolbar .ql-picker,
+    .editor-container .ql-toolbar .ql-stroke {
+      color: var(--text) !important;
+      fill: var(--text) !important;
+      stroke: var(--text) !important;
+    }
+    
+    .editor-container .ql-toolbar {
+      color: var(--text) !important;
     }
 
     .toolbar {
@@ -225,23 +257,48 @@
     }
 
     .btn {
-      padding: 8px 12px;
+      padding: 10px 16px;
       background: var(--bg);
       border: 1px solid var(--border);
       border-radius: 8px;
       font-family: var(--font-display);
-      font-size: 12px;
+      font-size: 13px;
       font-weight: 500;
       cursor: pointer;
       transition: all 0.2s ease;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
     }
 
-    .btn:hover { background: var(--accent-subtle); }
-    .btn:active { transform: scale(0.98); }
-    .btn.primary { background: var(--accent); color: white; border-color: var(--accent); }
-    .btn.primary:hover { background: #1d4ed8; }
-    .btn.danger { color: #dc2626; }
-    .btn.danger:hover { background: rgba(220, 38, 38, 0.1); }
+    .btn:hover {
+      background: var(--bg-subtle);
+      transform: translateY(-1px);
+    }
+    
+    .btn:active {
+      transform: translateY(0);
+    }
+    
+    .btn.primary {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+      box-shadow: 0 2px 6px rgba(13, 110, 253, 0.2);
+    }
+    
+    .btn.primary:hover {
+      background: #0b5ed7;
+      transform: translateY(-1px);
+    }
+    
+    .btn.danger {
+      color: #dc3545;
+      border-color: rgba(220, 53, 69, 0.2);
+    }
+    
+    .btn.danger:hover {
+      background: rgba(220, 53, 69, 0.1);
+      border-color: rgba(220, 53, 69, 0.3);
+    }
 
     .group {
       display: flex;
@@ -323,19 +380,25 @@
       background: transparent;
       color: var(--text);
       font-family: var(--font-mono);
-      font-size: 13px;
+      font-size: 14px;
       line-height: 1.6;
       resize: vertical;
       outline: none;
+    }
+    
+    textarea::placeholder {
+      color: var(--text-muted);
+      opacity: 0.8;
     }
 
     .preview-area {
       min-height: 420px;
       overflow: auto;
-      padding: 16px;
+      padding: 20px;
       font-family: var(--font-body);
       font-size: 16px;
       line-height: 1.7;
+      color: var(--text);
     }
 
     .preview-area h1,
@@ -434,11 +497,12 @@
       white-space: pre-wrap;
       word-break: break-word;
       font-family: var(--font-mono);
-      font-size: 12px;
-      padding: 16px;
+      font-size: 13px;
+      padding: 20px;
       min-height: 420px;
       overflow: auto;
       margin: 0;
+      color: var(--text);
     }
 
     .hidden { display: none !important; }
@@ -488,9 +552,47 @@
     }
 
     @media (max-width: 900px) {
-      .layout { grid-template-columns: 1fr; }
-      .header { grid-template-columns: 1fr; gap: 16px; }
-      .controls { justify-self: start; }
+      .layout { 
+        grid-template-columns: 1fr; 
+      }
+      .header { 
+        grid-template-columns: 1fr; 
+        gap: 16px; 
+      }
+      .controls { 
+        justify-self: start; 
+        width: 100%;
+      }
+      
+      .tabs {
+        flex-wrap: wrap;
+      }
+      
+      .tab {
+        flex: 1 1 auto;
+        min-width: 120px;
+      }
+    }
+    
+    @media (max-width: 600px) {
+      .brand h1 {
+        font-size: 28px;
+      }
+      
+      .panel-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      
+      .toolbar {
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      
+      .btn {
+        padding: 8px 12px;
+        font-size: 12px;
+      }
     }
   </style>
 </head>
@@ -508,10 +610,6 @@
         <label class="toggle" title="开启后会在输入时自动转换">
           <input id="autoToggle" type="checkbox">
           <span>自动转换</span>
-        </label>
-        <label class="toggle" title="切换深色主题">
-          <input id="themeToggle" type="checkbox">
-          <span>深色模式</span>
         </label>
       </div>
     </header>
@@ -636,7 +734,6 @@
 
     const els = {
       autoToggle: document.getElementById('autoToggle'),
-      themeToggle: document.getElementById('themeToggle'),
 
       tabCode: document.getElementById('tab-code'),
       tabWrite: document.getElementById('tab-write'),
@@ -680,7 +777,6 @@
     };
 
     const defaultState = {
-      theme: 'auto',
       autoConvert: true,
       inputMode: 'auto',
       mainTab: 'code',
@@ -849,13 +945,8 @@
     }
 
     function setTheme(theme) {
-      state.theme = theme;
-
-      const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-      const isDark = theme === 'dark' || (theme === 'auto' && prefersDark);
-      document.documentElement.dataset.theme = isDark ? 'dark' : 'light';
-      els.themeToggle.checked = isDark;
-
+      // Single theme only - no longer needed
+      state.theme = 'light';
       persistState();
     }
 
@@ -929,7 +1020,6 @@
 
     function persistState() {
       const toSave = {
-        theme: state.theme,
         autoConvert: state.autoConvert,
         inputMode: state.inputMode,
         mainTab: state.mainTab,
@@ -1056,14 +1146,10 @@
       });
 
       els.autoToggle.addEventListener('change', () => {
-        state.autoConvert = els.autoToggle.checked;
-        persistState();
-        if (state.mainTab === 'code') renderCodeView(true);
-        if (state.mainTab === 'write') renderWriteView(true);
-      });
-
-      els.themeToggle.addEventListener('change', () => {
-        setTheme(els.themeToggle.checked ? 'dark' : 'light');
+       state.autoConvert = els.autoToggle.checked;
+       persistState();
+       if (state.mainTab === 'code') renderCodeView(true);
+       if (state.mainTab === 'write') renderWriteView(true);
       });
 
       els.segWriteHtml.addEventListener('click', () => applyWriteOutputKind('html'));
@@ -1125,7 +1211,8 @@
       els.autoToggle.checked = !!state.autoConvert;
       els.inputMode.value = state.inputMode;
 
-      setTheme(state.theme);
+      // Set single theme
+      setTheme('light');
 
       els.source.value = state.source || '';
 

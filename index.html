@@ -9,7 +9,7 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Crimson+Pro:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet" />
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/2.0.3/marked.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/turndown/7.1.1/turndown.min.js"></script>
@@ -20,456 +20,246 @@
 
   <style>
     :root {
-      --bg: #f8fafc;
-      --bg-grad-a: #f8fafc;
-      --bg-grad-b: #eef2ff;
-
-      --hero-text: rgba(15, 23, 42, 0.92);
-      --hero-muted: rgba(15, 23, 42, 0.62);
-      --glass-bg: rgba(255, 255, 255, 0.65);
-      --glass-border: rgba(15, 23, 42, 0.12);
-      --hover-bg: rgba(15, 23, 42, 0.06);
-
-      --card: rgba(255, 255, 255, 0.92);
-      --card-solid: #ffffff;
-      --text: #0f172a;
-      --muted: rgba(15, 23, 42, 0.65);
-      --border: rgba(15, 23, 42, 0.12);
-      --shadow: 0 10px 25px rgba(0, 0, 0, 0.10);
-
-      --primary: #2563eb;
-      --primary-2: #1d4ed8;
-      --danger: #ef4444;
-      --success: #16a34a;
-
-      --radius: 14px;
-      --radius-sm: 10px;
-      --gap: 14px;
-
-      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      --font: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
-
-      --kbd-bg: rgba(15, 23, 42, 0.08);
-      --kbd-border: rgba(15, 23, 42, 0.12);
-      --kbd-text: rgba(15, 23, 42, 0.88);
-
-      --focus: 0 0 0 4px rgba(37, 99, 235, 0.22);
+      --bg: #fefefe;
+      --bg-subtle: #f9f9f9;
+      --text: #111827;
+      --text-muted: #6b7280;
+      --border: #e5e7eb;
+      --accent: #2563eb;
+      --accent-subtle: rgba(37, 99, 235, 0.08);
+      --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+      --radius: 12px;
+      --gap: 20px;
+      
+      --font-display: "Space Grotesk", -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-body: "Crimson Pro", Georgia, serif;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
     }
 
     html[data-theme="dark"] {
-      --bg: #0b1220;
-      --bg-grad-a: #0b1220;
-      --bg-grad-b: #121a2e;
-
-      --hero-text: rgba(255, 255, 255, 0.95);
-      --hero-muted: rgba(255, 255, 255, 0.68);
-      --glass-bg: rgba(255, 255, 255, 0.12);
-      --glass-border: rgba(255, 255, 255, 0.18);
-      --hover-bg: rgba(255, 255, 255, 0.16);
-
-      --card: rgba(16, 23, 42, 0.82);
-      --card-solid: #0f172a;
-      --text: rgba(248, 250, 252, 0.92);
-      --muted: rgba(248, 250, 252, 0.62);
-      --border: rgba(148, 163, 184, 0.20);
-      --shadow: 0 14px 35px rgba(0, 0, 0, 0.35);
-
-      --kbd-bg: rgba(255, 255, 255, 0.14);
-      --kbd-border: rgba(255, 255, 255, 0.18);
-      --kbd-text: rgba(255, 255, 255, 0.92);
-
-      --focus: 0 0 0 4px rgba(37, 99, 235, 0.28);
+      --bg: #0b0f14;
+      --bg-subtle: #111827;
+      --text: #f9fafb;
+      --text-muted: #9ca3af;
+      --border: #1f2937;
+      --accent: #60a5fa;
+      --accent-subtle: rgba(96, 165, 250, 0.12);
+      --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.30), 0 4px 6px -2px rgba(0, 0, 0, 0.20);
     }
 
-    * { box-sizing: border-box; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      margin: 0;
-      font-family: var(--font);
+      font-family: var(--font-body);
       color: var(--text);
-      background: radial-gradient(1200px 700px at 10% -10%, rgba(37, 99, 235, 0.30), transparent 55%),
-                  radial-gradient(900px 600px at 85% 0%, rgba(99, 102, 241, 0.22), transparent 50%),
-                  linear-gradient(135deg, var(--bg-grad-a), var(--bg-grad-b));
+      background: var(--bg);
+      line-height: 1.6;
       min-height: 100vh;
+      padding: var(--gap);
     }
 
-    a { color: inherit; }
-
     .app {
-      max-width: 1280px;
+      max-width: 1200px;
       margin: 0 auto;
-      padding: 22px 16px 42px;
     }
 
     .header {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 16px;
-      margin-bottom: 16px;
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: var(--gap);
+      margin-bottom: 40px;
+      align-items: end;
     }
 
-    .brand {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-
-    .title {
-      font-size: 20px;
-      font-weight: 800;
+    .brand h1 {
+      font-family: var(--font-display);
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--text);
       letter-spacing: -0.02em;
-      color: var(--hero-text);
-      line-height: 1.1;
+      margin-bottom: 8px;
     }
 
-    .subtitle {
-      font-size: 13px;
-      color: var(--hero-muted);
-      line-height: 1.4;
+    .brand .subtitle {
+      color: var(--text-muted);
+      font-style: italic;
+      font-size: 16px;
     }
 
-    .top-actions {
+    .controls {
       display: flex;
-      align-items: center;
-      gap: 10px;
-      flex-wrap: wrap;
-      justify-content: flex-end;
+      gap: 12px;
+      justify-self: end;
     }
 
-    .pill {
+    .toggle {
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      padding: 8px 10px;
+      padding: 8px 12px;
+      background: var(--accent-subtle);
+      border: 1px solid var(--border);
       border-radius: 999px;
-      background: var(--glass-bg);
-      color: var(--hero-text);
-      border: 1px solid var(--glass-border);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
       font-size: 13px;
-      user-select: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
     }
 
-    .pill input { accent-color: var(--primary); }
+    .toggle:hover { transform: translateY(-1px); }
+    .toggle input { accent-color: var(--accent); }
 
     .tabs {
-      display: inline-flex;
-      padding: 6px;
-      border-radius: 999px;
-      background: var(--glass-bg);
-      border: 1px solid var(--glass-border);
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      gap: 6px;
-      margin-bottom: 14px;
+      display: flex;
+      gap: 4px;
+      margin-bottom: 24px;
     }
 
-    .tab-btn {
-      border: none;
-      cursor: pointer;
-      border-radius: 999px;
-      padding: 10px 14px;
-      font-weight: 700;
+    .tab {
+      padding: 12px 16px;
+      background: var(--bg-subtle);
+      border: 1px solid var(--border);
+      border-bottom: none;
+      font-family: var(--font-display);
+      font-weight: 500;
       font-size: 14px;
-      color: var(--hero-muted);
-      background: transparent;
-      transition: transform 0.08s ease, background-color 0.2s ease;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      position: relative;
     }
 
-    .tab-btn:hover { background: var(--hover-bg); }
-    .tab-btn:active { transform: translateY(1px); }
-
-    .tab-btn[aria-selected="true"] {
-      background: var(--card-solid);
-      color: var(--text);
+    .tab:first-child { border-radius: var(--radius) 0 0 0; }
+    .tab:last-child { border-radius: 0 var(--radius) 0 0; }
+    .tab:hover { background: var(--accent-subtle); }
+    .tab.active {
+      background: var(--bg);
+      border-bottom: 2px solid var(--accent);
     }
 
-    .card {
-      background: var(--card);
+    .workspace {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: var(--gap);
+    }
+
+    .panel {
+      grid-column: span 4;
+      background: var(--bg);
       border: 1px solid var(--border);
       border-radius: var(--radius);
       box-shadow: var(--shadow);
       overflow: hidden;
+      contain: layout style paint;
     }
 
-    .card + .card { margin-top: 14px; }
-
-    .card-header {
+    .panel-header {
       display: flex;
-      align-items: center;
       justify-content: space-between;
-      gap: 10px;
-      padding: 12px 14px;
+      align-items: center;
+      padding: 16px;
       border-bottom: 1px solid var(--border);
-      background: linear-gradient(0deg, rgba(255, 255, 255, 0.10), rgba(255, 255, 255, 0.10));
+      background: var(--bg-subtle);
     }
 
-    html[data-theme="dark"] .card-header {
-      background: linear-gradient(0deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.06));
-    }
-
-    .card-title {
-      font-weight: 700;
+    .panel-title {
+      font-family: var(--font-display);
       font-size: 14px;
-      letter-spacing: 0.01em;
+      font-weight: 600;
+      color: var(--text);
     }
 
-    .meta {
-      font-size: 12px;
-      color: var(--muted);
-      white-space: nowrap;
-    }
-
-    .toolbar {
+    .panel-actions {
       display: flex;
       gap: 8px;
-      flex-wrap: wrap;
-      align-items: center;
-      justify-content: flex-end;
     }
 
     .btn {
+      padding: 8px 12px;
+      background: var(--bg);
       border: 1px solid var(--border);
-      background: rgba(255, 255, 255, 0.70);
-      color: var(--text);
-      border-radius: 999px;
-      padding: 9px 12px;
-      font-weight: 600;
-      font-size: 13px;
+      border-radius: 8px;
+      font-family: var(--font-display);
+      font-size: 12px;
+      font-weight: 500;
       cursor: pointer;
-      transition: transform 0.08s ease, background-color 0.18s ease, border-color 0.18s ease;
+      transition: all 0.2s ease;
     }
 
-    html[data-theme="dark"] .btn {
-      background: rgba(15, 23, 42, 0.55);
-    }
+    .btn:hover { background: var(--accent-subtle); }
+    .btn:active { transform: scale(0.98); }
 
-    .btn:hover { background: rgba(255, 255, 255, 0.82); }
-    html[data-theme="dark"] .btn:hover { background: rgba(15, 23, 42, 0.72); }
-
-    .btn:active { transform: translateY(1px); }
-
-    .btn:focus-visible,
-    select:focus-visible,
-    textarea:focus-visible {
-      outline: none;
-      box-shadow: var(--focus);
-    }
-
-    .btn.primary {
-      background: var(--primary);
-      border-color: rgba(255, 255, 255, 0.0);
-      color: #ffffff;
-    }
-
-    .btn.primary:hover { background: var(--primary-2); }
-
-    .btn.danger {
-      background: rgba(239, 68, 68, 0.16);
-      color: #b91c1c;
-      border-color: rgba(239, 68, 68, 0.28);
-    }
-
-    html[data-theme="dark"] .btn.danger {
-      background: rgba(239, 68, 68, 0.18);
-      color: rgba(254, 202, 202, 0.92);
-    }
-
-    .control-row {
-      display: flex;
-      gap: 10px;
-      padding: 12px 14px;
-      flex-wrap: wrap;
-      align-items: center;
-    }
-
-    .control-row .group {
-      display: inline-flex;
-      gap: 8px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-
-    .label {
-      font-size: 13px;
-      font-weight: 700;
-      color: var(--muted);
-    }
-
-    select {
-      border: 1px solid var(--border);
-      background: rgba(255, 255, 255, 0.70);
-      color: var(--text);
-      border-radius: 999px;
-      padding: 9px 12px;
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-    }
-
-    html[data-theme="dark"] select { background: rgba(15, 23, 42, 0.55); }
-
-    .layout {
-      display: grid;
-      gap: var(--gap);
-      grid-template-columns: repeat(12, 1fr);
-      padding: 0 14px 14px;
-    }
-
-    .panel { height: 100%; }
-
-    .panel.input { grid-column: span 5; }
-    .panel.preview { grid-column: span 4; }
-    .panel.output { grid-column: span 3; }
-
-    @media (max-width: 1080px) {
-      .panel.input { grid-column: span 12; }
-      .panel.preview { grid-column: span 7; }
-      .panel.output { grid-column: span 5; }
-    }
-
-    @media (max-width: 760px) {
-      .header { flex-direction: column; align-items: stretch; }
-      .top-actions { justify-content: flex-start; }
-      .panel.preview, .panel.output { grid-column: span 12; }
+    .panel-body {
+      padding: 16px;
     }
 
     textarea {
       width: 100%;
       min-height: 420px;
-      padding: 14px;
       border: none;
       background: transparent;
       color: var(--text);
-      font-family: var(--mono);
+      font-family: var(--font-mono);
       font-size: 13px;
       line-height: 1.6;
       resize: vertical;
       outline: none;
     }
 
-    .body {
-      padding: 0;
-    }
-
-    .preview-area {
-      padding: 14px;
+    .preview-content {
       min-height: 420px;
       overflow: auto;
     }
 
-    .preview-area :first-child { margin-top: 0; }
-
-    .preview-area pre,
-    .code-block {
-      font-family: var(--mono);
-      font-size: 13px;
-      line-height: 1.55;
-      background: rgba(15, 23, 42, 0.06);
+    .preview-content pre {
+      background: var(--bg-subtle);
       border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
+      border-radius: 6px;
       padding: 12px;
       overflow: auto;
-      white-space: pre;
+      font-family: var(--font-mono);
+      font-size: 12px;
     }
 
-    html[data-theme="dark"] .preview-area pre,
-    html[data-theme="dark"] .code-block {
-      background: rgba(255, 255, 255, 0.06);
-    }
-
-    .code-block {
-      margin: 0;
-      min-height: 420px;
+    .output-code {
       white-space: pre-wrap;
       word-break: break-word;
-    }
-
-    .seg {
-      display: inline-flex;
-      border: 1px solid var(--border);
-      border-radius: 999px;
-      overflow: hidden;
-      background: rgba(255, 255, 255, 0.55);
-    }
-
-    html[data-theme="dark"] .seg { background: rgba(15, 23, 42, 0.55); }
-
-    .seg button {
-      border: none;
-      background: transparent;
-      padding: 8px 10px;
-      cursor: pointer;
-      font-weight: 700;
+      font-family: var(--font-mono);
       font-size: 12px;
-      color: var(--muted);
     }
 
-    .seg button[aria-pressed="true"] {
-      background: rgba(37, 99, 235, 0.16);
-      color: var(--text);
-    }
-
-    .hidden { display: none !important; }
-
-    /* Quill tweaks for theme */
-    #editor {
-      height: 420px;
-    }
-
-    html[data-theme="dark"] .ql-toolbar.ql-snow,
-    html[data-theme="dark"] .ql-container.ql-snow {
-      border-color: var(--border);
-    }
-
-    html[data-theme="dark"] .ql-toolbar.ql-snow {
-      background: rgba(255, 255, 255, 0.05);
-    }
-
-    html[data-theme="dark"] .ql-container.ql-snow {
-      background: rgba(15, 23, 42, 0.18);
-      color: var(--text);
-    }
-
-    html[data-theme="dark"] .ql-editor { color: var(--text); }
-    html[data-theme="dark"] .ql-snow .ql-stroke { stroke: rgba(248, 250, 252, 0.75); }
-    html[data-theme="dark"] .ql-snow .ql-fill { fill: rgba(248, 250, 252, 0.75); }
-    html[data-theme="dark"] .ql-snow .ql-picker { color: rgba(248, 250, 252, 0.75); }
-
-    .toast {
+    .status {
       position: fixed;
-      right: 16px;
-      bottom: 16px;
-      max-width: min(420px, calc(100vw - 32px));
-      background: rgba(15, 23, 42, 0.92);
-      color: rgba(255, 255, 255, 0.95);
-      padding: 10px 12px;
-      border-radius: 12px;
-      box-shadow: 0 16px 45px rgba(0, 0, 0, 0.40);
-      border: 1px solid rgba(255, 255, 255, 0.12);
+      bottom: 20px;
+      right: 20px;
+      padding: 12px 16px;
+      background: var(--text);
+      color: var(--bg);
+      border-radius: var(--radius);
+      font-size: 13px;
       transform: translateY(8px);
       opacity: 0;
       pointer-events: none;
-      transition: opacity 0.18s ease, transform 0.18s ease;
-      font-size: 13px;
+      transition: all 0.2s ease;
     }
 
-    .toast.show {
+    .status.show {
       opacity: 1;
       transform: translateY(0);
     }
 
     .kbd {
-      font-family: var(--mono);
-      font-size: 12px;
-      background: var(--kbd-bg);
-      border: 1px solid var(--kbd-border);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      background: var(--bg-subtle);
       padding: 2px 6px;
-      border-radius: 8px;
-      color: var(--kbd-text);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+    }
+
+    @media (max-width: 900px) {
+      .workspace { grid-template-columns: 1fr; }
+      .panel { grid-column: span 1; }
+      .header { grid-template-columns: 1fr; gap: 16px; }
+      .controls { justify-self: start; }
     }
   </style>
 </head>
@@ -477,28 +267,71 @@
   <div class="app">
     <header class="header">
       <div class="brand">
-        <div class="title">Markdown ↔ HTML 双向转换器</div>
-        <div class="subtitle">
-          纯前端本地运行：自动识别输入类型、实时预览、复制与导入导出。快捷键：<span class="kbd">Ctrl</span> + <span class="kbd">Enter</span> 手动转换 / <span class="kbd">Ctrl</span> + <span class="kbd">L</span> 清空。
-        </div>
+        <h1>Markdown ↔ HTML 双向转换器</h1>
+        <p class="subtitle">
+          纯前端本地运行：自动识别输入类型、实时预览、复制与导入导出
+        </p>
       </div>
-
-      <div class="top-actions">
-        <label class="pill" title="开启后会在输入时自动转换（有 300ms 防抖）">
-          <input id="autoToggle" type="checkbox" />
+      
+      <div class="controls">
+        <label class="toggle" title="开启后会在输入时自动转换">
+          <input id="autoToggle" type="checkbox">
           <span>自动转换</span>
         </label>
-        <label class="pill" title="切换深色主题（会记住你的选择）">
-          <input id="themeToggle" type="checkbox" />
-          <span>深色</span>
+        <label class="toggle" title="切换深色主题">
+          <input id="themeToggle" type="checkbox">
+          <span>深色模式</span>
         </label>
       </div>
     </header>
 
-    <nav class="tabs" role="tablist" aria-label="主视图切换">
-      <button class="tab-btn" id="tab-code" role="tab" aria-selected="true" aria-controls="panel-code" type="button">代码转换</button>
-      <button class="tab-btn" id="tab-write" role="tab" aria-selected="false" aria-controls="panel-write" type="button">撰写视图</button>
+    <nav class="tabs" role="tablist">
+      <button class="tab active" data-tab="code" role="tab">代码转换</button>
+      <button class="tab" data-tab="write" role="tab">撰写视图</button>
     </nav>
+
+    <main class="workspace" id="workspace">
+      <div class="panel">
+        <div class="panel-header">
+          <h2 class="panel-title">输入</h2>
+          <div class="panel-actions">
+            <button class="btn" id="clearInput">清空</button>
+            <button class="btn" id="importFile">导入</button>
+          </div>
+        </div>
+        <div class="panel-body">
+          <textarea id="inputArea" placeholder="粘贴 Markdown 或 HTML 代码..."></textarea>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <h2 class="panel-title">预览</h2>
+          <div class="panel-actions">
+            <button class="btn" id="refreshPreview">刷新</button>
+          </div>
+        </div>
+        <div class="panel-body">
+          <div class="preview-content" id="previewArea"></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <h2 class="panel-title">输出</h2>
+          <div class="panel-actions">
+            <button class="btn" id="copyOutput">复制</button>
+            <button class="btn" id="saveFile">保存</button>
+          </div>
+        </div>
+        <div class="panel-body">
+          <pre class="output-code" id="outputArea"></pre>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div class="status" id="status"></div>
 
     <section class="card" id="panel-code" role="tabpanel" aria-labelledby="tab-code">
       <div class="card-header">

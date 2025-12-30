@@ -1,0 +1,265 @@
+
+<html><head><base href="https://markdowntohtml.com/">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Markdown 与 HTML 双向转换器 - 像素风格</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/2.0.3/marked.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/turndown/7.1.1/turndown.min.js"></script>
+<script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+<link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+<style>
+  :root {
+    --primary-color: #0096FA;
+    --secondary-color: #E4E7ED;
+    --text-color: #333;
+    --background-color: #F8F8F8;
+  }
+  
+  body {
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: var(--background-color);
+    color: var(--text-color);
+  }
+  
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  
+  header {
+    background-color: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    padding: 10px 0;
+  }
+  
+  h1 {
+    text-align: center;
+    color: var(--primary-color);
+    font-size: 24px;
+    margin: 0;
+  }
+  
+  .tab {
+    display: flex;
+    background-color: white;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+  
+  .tab button {
+    flex: 1;
+    background-color: transparent;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    padding: 14px 16px;
+    transition: 0.3s;
+    font-size: 16px;
+    color: var(--text-color);
+    border-bottom: 3px solid transparent;
+  }
+  
+  .tab button:hover {
+    background-color: var(--secondary-color);
+  }
+  
+  .tab button.active {
+    border-bottom: 3px solid var(--primary-color);
+    color: var(--primary-color);
+  }
+  
+  .tabcontent {
+    display: none;
+    background-color: white;
+    padding: 20px;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+  
+  textarea, #editor {
+    width: 100%;
+    height: 300px;
+    margin-bottom: 20px;
+    padding: 10px;
+    border: 1px solid var(--secondary-color);
+    border-radius: 4px;
+    font-size: 14px;
+    resize: vertical;
+  }
+  
+  button {
+    background-color: var(--primary-color);
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+  }
+  
+  button:hover {
+    background-color: #0078c8;
+  }
+  
+  .output-container {
+    display: flex;
+    gap: 20px;
+  }
+  
+  .output-box {
+    flex: 1;
+    border: 1px solid var(--secondary-color);
+    padding: 20px;
+    margin-top: 20px;
+    background-color: white;
+    border-radius: 4px;
+    min-height: 200px;
+  }
+  
+  .ql-toolbar.ql-snow {
+    border: 1px solid var(--secondary-color);
+    border-radius: 4px 4px 0 0;
+  }
+  
+  .ql-container.ql-snow {
+    border: 1px solid var(--secondary-color);
+    border-top: none;
+    border-radius: 0 0 4px 4px;
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>Markdown 与 HTML 双向转换器 - 像素风格</h1>
+</header>
+<div class="container">
+  <div class="tab">
+    <button class="tablinks" onclick="openTab(event, 'CodeView')" id="defaultOpen">代码转换</button>
+    <button class="tablinks" onclick="openTab(event, 'WritingView')">撰写视图</button>
+  </div>
+
+  <div id="CodeView" class="tabcontent">
+    <textarea id="input" placeholder="在此输入Markdown或HTML代码..."></textarea>
+    <div>
+      <button onclick="convertToHTML()">转换为HTML</button>
+      <button onclick="convertToMarkdown()">转换为Markdown</button>
+      <button onclick="copyOutput('html')">复制HTML</button>
+      <button onclick="copyOutput('markdown')">复制Markdown</button>
+    </div>
+    <div class="output-container">
+      <div class="output-box">
+        <h3>HTML 输出</h3>
+        <div id="htmlOutput"></div>
+      </div>
+      <div class="output-box">
+        <h3>Markdown 输出</h3>
+        <pre id="markdownOutput"></pre>
+      </div>
+    </div>
+  </div>
+
+  <div id="WritingView" class="tabcontent">
+    <div id="editor"></div>
+    <button onclick="syncContentToMarkdown()">同步为Markdown</button>
+    <button onclick="syncContentToHTML()">同步为HTML</button>
+  </div>
+</div>
+
+<script>
+let quill;
+
+function openTab(evt, tabName) {
+  var i, tabcontent, tablinks;
+  tabcontent = document.getElementsByClassName("tabcontent");
+  for (i = 0; i < tabcontent.length; i++) {
+    tabcontent[i].style.display = "none";
+  }
+  tablinks = document.getElementsByClassName("tablinks");
+  for (i = 0; i < tablinks.length; i++) {
+    tablinks[i].className = tablinks[i].className.replace(" active", "");
+  }
+  document.getElementById(tabName).style.display = "block";
+  evt.currentTarget.className += " active";
+
+  if (tabName === 'WritingView' && !quill) {
+    quill = new Quill('#editor', {
+      theme: 'snow',
+      modules: {
+        toolbar: [
+          [{ 'header': [1, 2, 3, false] }],
+          ['bold', 'italic', 'underline', 'strike'],
+          ['link', 'image'],
+          [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+          ['clean']
+        ]
+      }
+    });
+  }
+}
+
+function convertToHTML() {
+  const input = document.getElementById('input').value;
+  const htmlOutput = marked(input);
+  document.getElementById('htmlOutput').innerHTML = htmlOutput;
+  document.getElementById('markdownOutput').textContent = input;
+}
+
+function convertToMarkdown() {
+  const input = document.getElementById('input').value;
+  const turndownService = new TurndownService();
+  const markdownOutput = turndownService.turndown(input);
+  document.getElementById('htmlOutput').innerHTML = input;
+  document.getElementById('markdownOutput').textContent = markdownOutput;
+}
+
+function copyOutput(type) {
+  const output = type === 'html' ? document.getElementById('htmlOutput').innerHTML : document.getElementById('markdownOutput').textContent;
+  navigator.clipboard.writeText(output).then(() => {
+    alert(`已复制${type === 'html' ? 'HTML' : 'Markdown'}到剪贴板！`);
+  });
+}
+
+function syncContentToMarkdown() {
+  const editorContent = quill.root.innerHTML;
+  const turndownService = new TurndownService();
+  const markdownContent = turndownService.turndown(editorContent);
+  document.getElementById('input').value = markdownContent;
+  document.getElementById('htmlOutput').innerHTML = editorContent;
+  document.getElementById('markdownOutput').textContent = markdownContent;
+  alert('内容已同步为Markdown和HTML格式！');
+}
+
+function syncContentToHTML() {
+  const editorContent = quill.root.innerHTML;
+  document.getElementById('input').value = editorContent;
+  document.getElementById('htmlOutput').innerHTML = editorContent;
+  const turndownService = new TurndownService();
+  const markdownContent = turndownService.turndown(editorContent);
+  document.getElementById('markdownOutput').textContent = markdownContent;
+  alert('内容已同步为HTML和Markdown格式！');
+}
+
+document.getElementById("defaultOpen").click();
+
+// 自动检测并转换输入
+document.getElementById('input').addEventListener('input', function() {
+  const input = this.value.trim();
+  if (input.startsWith('<')) {
+    convertToMarkdown();
+  } else {
+    convertToHTML();
+  }
+});
+</script>
+</body>
+</html>

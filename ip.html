@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>多功能工具箱</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+    body {
+        font-family: 'Roboto', sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        margin: 0;
+        padding: 20px;
+        box-sizing: border-box;
+    }
+    .container {
+        background-color: rgba(255, 255, 255, 0.95);
+        padding: 40px;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        max-width: 600px;
+        width: 100%;
+    }
+    h1 {
+        text-align: center;
+        color: #4a4a4a;
+        font-size: 32px;
+        margin-bottom: 40px;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+    }
+    h2 {
+        color: #5a67d8;
+        font-size: 24px;
+        margin-top: 0;
+        margin-bottom: 20px;
+    }
+    h3 {
+        color: #4a5568;
+        font-size: 20px;
+        margin-top: 20px;
+        margin-bottom: 10px;
+    }
+    .tool {
+        background-color: #ffffff;
+        border-radius: 15px;
+        padding: 25px;
+        margin-bottom: 30px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        transition: all 0.3s ease;
+    }
+    .tool:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    }
+    input, select, button, textarea {
+        display: block;
+        width: 100%;
+        margin: 15px 0;
+        padding: 15px;
+        border: 2px solid #e2e8f0;
+        border-radius: 10px;
+        box-sizing: border-box;
+        font-size: 16px;
+        transition: all 0.3s ease;
+    }
+    input:focus, select:focus, textarea:focus {
+        outline: none;
+        border-color: #5a67d8;
+        box-shadow: 0 0 0 3px rgba(90,103,216,0.2);
+    }
+    button {
+        background-color: #5a67d8;
+        color: white;
+        border: none;
+        cursor: pointer;
+        font-weight: bold;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        transition: all 0.3s ease;
+    }
+    button:hover {
+        background-color: #4c51bf;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 6px rgba(90,103,216,0.2);
+    }
+    #qrcode, #uuid-result, #ip-info {
+        text-align: center;
+        margin-top: 20px;
+        word-break: break-all;
+        background-color: #f7fafc;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+    }
+    #ip-info {
+        text-align: left;
+        font-size: 14px;
+        line-height: 1.6;
+    }
+    #ip-info strong {
+        color: #5a67d8;
+    }
+</style>
+</head>
+<body>
+<div class="container">
+    <h1>多功能工具箱</h1>
+    
+    <div class="tool">
+        <h2>二维码生成器</h2>
+        <select id="qr-type">
+            <option value="url">网址</option>
+            <option value="text">文本</option>
+        </select>
+        <input type="text" id="qr-input" placeholder="请输入网址或文本">
+        <button onclick="generateQR()">生成二维码</button>
+        <div id="qrcode"></div>
+    </div>
+    
+    <div class="tool">
+        <h2>UUID 生成器</h2>
+        <button onclick="generateUUID()">生成 UUID</button>
+        <div id="uuid-result"></div>
+    </div>
+    
+    <div class="tool">
+        <h2>IP 信息查询</h2>
+        <input type="text" id="ip-input" placeholder="输入IP地址（可选，默认查询当前IP）">
+        <button onclick="getIPInfo()">查询 IP 信息</button>
+        <div id="ip-info"></div>
+    </div>
+</div>
+
+<script>
+    function generateQR() {
+        var input = document.getElementById("qr-input").value;
+        
+        if (input === "") {
+            alert("请输入内容！");
+            return;
+        }
+        
+        document.getElementById("qrcode").innerHTML = '';
+        var qrcode = new QRCode(document.getElementById("qrcode"), {
+            text: input,
+            width: 128,
+            height: 128,
+            colorDark : "#5a67d8",
+            colorLight : "#ffffff",
+            correctLevel : QRCode.CorrectLevel.H
+        });
+    }
+
+    function generateUUID() {
+        var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+            var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+            return v.toString(16);
+        });
+        document.getElementById("uuid-result").textContent = uuid;
+    }
+
+    function getIPInfo() {
+        var ipAddress = document.getElementById("ip-input").value;
+        var useragentinfoUrl = 'https://ip.useragentinfo.com/json' + (ipAddress ? '?ip=' + ipAddress : '');
+        var ipapiUrl = ipAddress ? `https://ipapi.co/${ipAddress}/json/` : 'https://ipapi.co/json/';
+        var ipApiComUrl = `http://ip-api.com/json/${ipAddress}`;
+
+        Promise.allSettled([
+            fetch(useragentinfoUrl).then(response => response.json()),
+            fetch(ipapiUrl).then(response => response.json()),
+            fetch(ipApiComUrl).then(response => response.json())
+        ])
+        .then(([useragentinfoResult, ipapiResult, ipApiComResult]) => {
+            var info = '';
+
+            if (useragentinfoResult.status === 'fulfilled') {
+                var useragentinfoData = useragentinfoResult.value;
+                info += `
+                    <h3>中国友好 API (UseragentInfo)</h3>
+                    <strong>IP:</strong> ${useragentinfoData.ip}<br>
+                    <strong>国家:</strong> ${useragentinfoData.country}<br>
+                    <strong>省份:</strong> ${useragentinfoData.province}<br>
+                    <strong>城市:</strong> ${useragentinfoData.city}<br>
+                    <strong>ISP:</strong> ${useragentinfoData.isp}<br>
+                    <strong>网络类型:</strong> ${useragentinfoData.net_str}<br>
+                    <br>
+                `;
+            }
+
+            if (ipapiResult.status === 'fulfilled') {
+                var ipapiData = ipapiResult.value;
+                info += `
+                    <h3>国际 API 1 (IPAPI.co)</h3>
+                    <strong>IP:</strong> ${ipapiData.ip}<br>
+                    <strong>国家:</strong> ${ipapiData.country_name}<br>
+                    <strong>地区:</strong> ${ipapiData.region}<br>
+                    <strong>城市:</strong> ${ipapiData.city}<br>
+                    <strong>ISP:</strong> ${ipapiData.org}<br>
+                    <strong>经纬度:</strong> ${ipapiData.latitude}, ${ipapiData.longitude}<br>
+                    <strong>时区:</strong> ${ipapiData.timezone}<br>
+                    <strong>邮政编码:</strong> ${ipapiData.postal}<br>
+                    <strong>ASN:</strong> ${ipapiData.asn}<br>
+                    <strong>代理状态:</strong> ${ipapiData.proxy ? '检测到代理' : '未检测到代理'}<br>
+                    <br>
+                `;
+            }
+
+            if (ipApiComResult.status === 'fulfilled') {
+                var ipApiComData = ipApiComResult.value;
+                info += `
+                    <h3>国际 API 2 (IP-API.com)</h3>
+                    <strong>IP:</strong> ${ipApiComData.query}<br>
+                    <strong>国家:</strong> ${ipApiComData.country}<br>
+                    <strong>地区:</strong> ${ipApiComData.regionName}<br>
+                    <strong>城市:</strong> ${ipApiComData.city}<br>
+                    <strong>ISP:</strong> ${ipApiComData.isp}<br>
+                    <strong>经纬度:</strong> ${ipApiComData.lat}, ${ipApiComData.lon}<br>
+                    <strong>时区:</strong> ${ipApiComData.timezone}<br>
+                    <strong>邮政编码:</strong> ${ipApiComData.zip}<br>
+                    <strong>AS:</strong> ${ipApiComData.as}<br>
+                    <strong>代理状态:</strong> ${ipApiComData.proxy ? '检测到代理' : '未检测到代理'}<br>
+                `;
+            }
+
+            if (info === '') {
+                info = "获取IP信息失败，请稍后再试。";
+            }
+
+            document.getElementById("ip-info").innerHTML = info;
+        })
+        .catch(error => {
+            document.getElementById("ip-info").textContent = "获取IP信息失败，请稍后再试。";
+            console.error('Error:', error);
+        });
+    }
+</script>
+</body>
+</html>

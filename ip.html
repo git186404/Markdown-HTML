@@ -1,249 +1,897 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>多功能工具箱</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
-<style>
-    body {
-        font-family: 'Roboto', sans-serif;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        min-height: 100vh;
-        margin: 0;
-        padding: 20px;
-        box-sizing: border-box;
-    }
-    .container {
-        background-color: rgba(255, 255, 255, 0.95);
-        padding: 40px;
-        border-radius: 20px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-        max-width: 600px;
-        width: 100%;
-    }
-    h1 {
-        text-align: center;
-        color: #4a4a4a;
-        font-size: 32px;
-        margin-bottom: 40px;
-        text-transform: uppercase;
-        letter-spacing: 2px;
-    }
-    h2 {
-        color: #5a67d8;
-        font-size: 24px;
-        margin-top: 0;
-        margin-bottom: 20px;
-    }
-    h3 {
-        color: #4a5568;
-        font-size: 20px;
-        margin-top: 20px;
-        margin-bottom: 10px;
-    }
-    .tool {
-        background-color: #ffffff;
-        border-radius: 15px;
-        padding: 25px;
-        margin-bottom: 30px;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-        transition: all 0.3s ease;
-    }
-    .tool:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 8px 20px rgba(0,0,0,0.1);
-    }
-    input, select, button, textarea {
-        display: block;
-        width: 100%;
-        margin: 15px 0;
-        padding: 15px;
-        border: 2px solid #e2e8f0;
-        border-radius: 10px;
-        box-sizing: border-box;
-        font-size: 16px;
-        transition: all 0.3s ease;
-    }
-    input:focus, select:focus, textarea:focus {
-        outline: none;
-        border-color: #5a67d8;
-        box-shadow: 0 0 0 3px rgba(90,103,216,0.2);
-    }
-    button {
-        background-color: #5a67d8;
-        color: white;
-        border: none;
-        cursor: pointer;
-        font-weight: bold;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        transition: all 0.3s ease;
-    }
-    button:hover {
-        background-color: #4c51bf;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 6px rgba(90,103,216,0.2);
-    }
-    #qrcode, #uuid-result, #ip-info {
-        text-align: center;
-        margin-top: 20px;
-        word-break: break-all;
-        background-color: #f7fafc;
-        border-radius: 10px;
-        padding: 20px;
-        box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
-    }
-    #ip-info {
-        text-align: left;
-        font-size: 14px;
-        line-height: 1.6;
-    }
-    #ip-info strong {
-        color: #5a67d8;
-    }
-</style>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>多功能工具箱</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-1: #667eea;
+            --bg-2: #764ba2;
+            --surface: rgba(255, 255, 255, 0.95);
+            --card: #ffffff;
+            --text: #2d3748;
+            --muted: #718096;
+            --primary: #5a67d8;
+            --primary-hover: #4c51bf;
+            --border: #e2e8f0;
+            --success: #2f855a;
+            --danger: #c53030;
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(135deg, var(--bg-1) 0%, var(--bg-2) 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            color: var(--text);
+        }
+
+        .container {
+            background-color: var(--surface);
+            padding: 28px;
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+            max-width: 920px;
+            width: 100%;
+        }
+
+        header {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #4a4a4a;
+            font-size: 28px;
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .subtitle {
+            margin: 0;
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .tools-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 18px;
+        }
+
+        @media (min-width: 900px) {
+            .tools-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .tool--ip {
+                grid-column: 1 / -1;
+            }
+        }
+
+        .tool {
+            background-color: var(--card);
+            border-radius: 15px;
+            padding: 22px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .tool { transition: none; }
+        }
+
+        .tool:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.10);
+        }
+
+        .tool-title {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        h2 {
+            color: var(--primary);
+            font-size: 20px;
+            margin: 0;
+        }
+
+        .tool-note {
+            color: var(--muted);
+            font-size: 12px;
+            margin: 0;
+            text-align: right;
+        }
+
+        label {
+            display: block;
+            font-size: 13px;
+            color: var(--muted);
+            margin-top: 12px;
+            margin-bottom: 6px;
+        }
+
+        input, select, button, textarea {
+            display: block;
+            width: 100%;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            padding: 12px;
+            font-size: 15px;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+            background: #fff;
+            color: var(--text);
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(90, 103, 216, 0.2);
+        }
+
+        textarea {
+            min-height: 88px;
+            resize: vertical;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            line-height: 1.45;
+        }
+
+        .field-row {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+
+        @media (min-width: 520px) {
+            .field-row {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .button-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 14px;
+        }
+
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        button:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(90, 103, 216, 0.2);
+        }
+
+        button:disabled {
+            opacity: 0.55;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        button.secondary {
+            background: #edf2f7;
+            color: var(--text);
+            border: 2px solid var(--border);
+        }
+
+        button.secondary:hover {
+            background: #e2e8f0;
+        }
+
+        button.ghost {
+            background: transparent;
+            color: var(--muted);
+            border: 2px dashed var(--border);
+        }
+
+        button.ghost:hover {
+            background: #f7fafc;
+            color: var(--text);
+        }
+
+        .panel {
+            margin-top: 14px;
+            background-color: #f7fafc;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        #qrcode {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 180px;
+        }
+
+        .error {
+            margin-top: 10px;
+            color: var(--danger);
+            font-size: 13px;
+        }
+
+        .hint {
+            color: var(--muted);
+            font-size: 12px;
+            margin-top: 6px;
+        }
+
+        .ip-sources {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        @media (min-width: 720px) {
+            .ip-sources {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .source-card {
+            background: #fff;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            padding: 14px;
+        }
+
+        .source-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .source-name {
+            font-weight: 700;
+        }
+
+        .badge {
+            font-size: 12px;
+            padding: 3px 8px;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            background: #f7fafc;
+            color: var(--muted);
+            flex: 0 0 auto;
+        }
+
+        .badge.ok {
+            border-color: rgba(47, 133, 90, 0.25);
+            background: rgba(47, 133, 90, 0.08);
+            color: var(--success);
+        }
+
+        .badge.fail {
+            border-color: rgba(197, 48, 48, 0.25);
+            background: rgba(197, 48, 48, 0.08);
+            color: var(--danger);
+        }
+
+        dl {
+            margin: 0;
+            display: grid;
+            grid-template-columns: 110px 1fr;
+            row-gap: 8px;
+            column-gap: 10px;
+            font-size: 13px;
+        }
+
+        dt {
+            color: var(--muted);
+        }
+
+        dd {
+            margin: 0;
+            word-break: break-word;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 16px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(17, 24, 39, 0.92);
+            color: #fff;
+            padding: 10px 14px;
+            border-radius: 12px;
+            font-size: 13px;
+            max-width: min(560px, calc(100vw - 40px));
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+        }
+
+        .toast.show {
+            opacity: 1;
+        }
+
+        footer {
+            margin-top: 18px;
+            color: rgba(255, 255, 255, 0.85);
+            text-align: center;
+            font-size: 12px;
+        }
+    </style>
 </head>
 <body>
 <div class="container">
-    <h1>多功能工具箱</h1>
-    
-    <div class="tool">
-        <h2>二维码生成器</h2>
-        <select id="qr-type">
-            <option value="url">网址</option>
-            <option value="text">文本</option>
-        </select>
-        <input type="text" id="qr-input" placeholder="请输入网址或文本">
-        <button onclick="generateQR()">生成二维码</button>
-        <div id="qrcode"></div>
-    </div>
-    
-    <div class="tool">
-        <h2>UUID 生成器</h2>
-        <button onclick="generateUUID()">生成 UUID</button>
-        <div id="uuid-result"></div>
-    </div>
-    
-    <div class="tool">
-        <h2>IP 信息查询</h2>
-        <input type="text" id="ip-input" placeholder="输入IP地址（可选，默认查询当前IP）">
-        <button onclick="getIPInfo()">查询 IP 信息</button>
-        <div id="ip-info">输入IP地址后点击查询按钮</div>
+    <header>
+        <h1>多功能工具箱</h1>
+        <p class="subtitle">二维码 / UUID / IP 信息查询（纯前端，无需后端）</p>
+    </header>
+
+    <div class="tools-grid">
+        <section class="tool" aria-labelledby="qr-title">
+            <div class="tool-title">
+                <h2 id="qr-title">二维码生成器</h2>
+                <p class="tool-note">支持下载 PNG</p>
+            </div>
+
+            <div class="field-row">
+                <div>
+                    <label for="qr-type">类型</label>
+                    <select id="qr-type">
+                        <option value="url">网址</option>
+                        <option value="text">文本</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="qr-size">尺寸：<span id="qr-size-label">256</span>px</label>
+                    <input id="qr-size" type="range" min="128" max="512" step="32" value="256" aria-label="二维码尺寸">
+                </div>
+            </div>
+
+            <label for="qr-input">内容</label>
+            <input type="text" id="qr-input" placeholder="https://example.com" autocomplete="off" spellcheck="false">
+
+            <div class="button-row">
+                <button id="qr-generate-btn">生成二维码</button>
+                <button id="qr-download-btn" class="secondary" disabled>下载 PNG</button>
+                <button id="qr-clear-btn" class="ghost">清空</button>
+            </div>
+
+            <div id="qr-error" class="error" hidden></div>
+
+            <div id="qrcode" class="panel" aria-live="polite"></div>
+        </section>
+
+        <section class="tool" aria-labelledby="uuid-title">
+            <div class="tool-title">
+                <h2 id="uuid-title">UUID 生成器</h2>
+                <p class="tool-note">支持批量与复制</p>
+            </div>
+
+            <div class="field-row">
+                <div>
+                    <label for="uuid-count">数量（1-50）</label>
+                    <input id="uuid-count" type="number" min="1" max="50" value="1">
+                </div>
+                <div>
+                    <label for="uuid-format">格式</label>
+                    <select id="uuid-format">
+                        <option value="lower">小写</option>
+                        <option value="upper">大写</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="button-row">
+                <button id="uuid-generate-btn">生成</button>
+                <button id="uuid-copy-btn" class="secondary" disabled>复制结果</button>
+                <button id="uuid-clear-btn" class="ghost">清空</button>
+            </div>
+
+            <label for="uuid-result">结果</label>
+            <textarea id="uuid-result" readonly placeholder="点击生成后会显示在这里"></textarea>
+        </section>
+
+        <section class="tool tool--ip" aria-labelledby="ip-title">
+            <div class="tool-title">
+                <h2 id="ip-title">IP 信息查询</h2>
+                <p class="tool-note">多源对比 + 本地缓存</p>
+            </div>
+
+            <label for="ip-input">IP 地址（可选）</label>
+            <input type="text" id="ip-input" placeholder="留空表示查询当前IP，例如 8.8.8.8" autocomplete="off" spellcheck="false" inputmode="url">
+            <div class="hint">提示：某些 API 可能因跨域/频率限制而失败，页面会显示每个来源的成功/失败状态。</div>
+
+            <div class="button-row">
+                <button id="ip-query-btn">查询</button>
+                <button id="ip-my-btn" class="secondary">使用当前IP</button>
+                <button id="ip-copy-btn" class="secondary" disabled>复制汇总</button>
+                <button id="ip-clear-cache-btn" class="ghost">清除缓存</button>
+            </div>
+
+            <div id="ip-error" class="error" hidden></div>
+
+            <div id="ip-info" class="panel">
+                <div style="text-align:center;color:#718096;">输入 IP 后点击查询，或直接查询当前 IP</div>
+            </div>
+        </section>
     </div>
 </div>
 
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+<footer>
+    说明：该页面在浏览器中直接请求第三方公开接口，仅用于工具查询；请勿输入敏感信息。
+</footer>
+
 <script>
-    function generateQR() {
-        var input = document.getElementById("qr-input").value;
-        
-        if (input === "") {
-            alert("请输入内容！");
-            return;
-        }
-        
-        document.getElementById("qrcode").innerHTML = '';
-        var qrcode = new QRCode(document.getElementById("qrcode"), {
-            text: input,
-            width: 128,
-            height: 128,
-            colorDark : "#5a67d8",
-            colorLight : "#ffffff",
-            correctLevel : QRCode.CorrectLevel.H
-        });
+    const $ = (id) => document.getElementById(id);
+
+    function showToast(message) {
+        const toast = $('toast');
+        toast.textContent = message;
+        toast.classList.add('show');
+        window.clearTimeout(showToast._t);
+        showToast._t = window.setTimeout(() => toast.classList.remove('show'), 1800);
     }
 
-    function generateUUID() {
-        var d = new Date().getTime();
-        var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-            var r = (d + Math.random() * 16) % 16 | 0;
+    async function copyText(text) {
+        if (!text) return false;
+
+        try {
+            await navigator.clipboard.writeText(text);
+            return true;
+        } catch {
+            const ta = document.createElement('textarea');
+            ta.value = text;
+            ta.setAttribute('readonly', '');
+            ta.style.position = 'fixed';
+            ta.style.left = '-9999px';
+            document.body.appendChild(ta);
+            ta.select();
+            const ok = document.execCommand('copy');
+            document.body.removeChild(ta);
+            return ok;
+        }
+    }
+
+    function setHidden(el, hidden) {
+        if (!el) return;
+        el.hidden = !!hidden;
+    }
+
+    function normalizeUUID(uuid, format) {
+        if (format === 'upper') return uuid.toUpperCase();
+        return uuid.toLowerCase();
+    }
+
+    function generateUUIDv4Fallback() {
+        let d = new Date().getTime();
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+            const r = (d + Math.random() * 16) % 16 | 0;
             d = Math.floor(d / 16);
-            var v = c === 'x' ? r : (r & 0x3 | 0x8);
+            const v = c === 'x' ? r : (r & 0x3) | 0x8;
             return v.toString(16);
         });
-        document.getElementById("uuid-result").textContent = uuid;
     }
 
-    function getIPInfo() {
-        var ipAddress = document.getElementById("ip-input").value;
-        var useragentinfoUrl = 'https://ip.useragentinfo.com/json' + (ipAddress ? '?ip=' + ipAddress : '');
-        var ipapiUrl = ipAddress ? `https://ipapi.co/${ipAddress}/json/` : 'https://ipapi.co/json/';
-        var ipApiComUrl = `https://ip-api.com/json/${ipAddress}`;
-        
-        document.getElementById("ip-info").innerHTML = '<p style="text-align:center;color:#5a67d8;">正在查询IP信息...</p>';
-        
-        Promise.allSettled([
-            fetch(useragentinfoUrl).then(response => response.json()),
-            fetch(ipapiUrl).then(response => response.json()),
-            fetch(ipApiComUrl).then(response => response.json())
-        ])
-        .then(([useragentinfoResult, ipapiResult, ipApiComResult]) => {
-            var info = '';
+    function isValidIP(value) {
+        const input = String(value || '').trim();
+        if (!input) return true;
 
-            if (useragentinfoResult.status === 'fulfilled') {
-                var useragentinfoData = useragentinfoResult.value;
-                info += `
-                    <h3>中国友好 API (UseragentInfo)</h3>
-                    <strong>IP:</strong> ${useragentinfoData.ip}<br>
-                    <strong>国家:</strong> ${useragentinfoData.country}<br>
-                    <strong>省份:</strong> ${useragentinfoData.province}<br>
-                    <strong>城市:</strong> ${useragentinfoData.city}<br>
-                    <strong>ISP:</strong> ${useragentinfoData.isp}<br>
-                    <strong>网络类型:</strong> ${useragentinfoData.net_str}<br>
-                    <br>
-                `;
+        const ipv4 = /^(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}$/;
+        if (ipv4.test(input)) return true;
+
+        const ipv6 = /^([0-9a-fA-F]{0,4}:){2,7}[0-9a-fA-F]{0,4}$/;
+        return ipv6.test(input);
+    }
+
+    async function fetchJson(url, { timeoutMs = 7000 } = {}) {
+        const controller = new AbortController();
+        const id = window.setTimeout(() => controller.abort(), timeoutMs);
+
+        try {
+            const res = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json'
+                },
+                signal: controller.signal
+            });
+
+            if (!res.ok) {
+                const text = await res.text().catch(() => '');
+                throw new Error(`HTTP ${res.status}${text ? `: ${text.slice(0, 200)}` : ''}`);
             }
 
-            if (ipapiResult.status === 'fulfilled') {
-                var ipapiData = ipapiResult.value;
-                info += `
-                    <h3>国际 API 1 (IPAPI.co)</h3>
-                    <strong>IP:</strong> ${ipapiData.ip}<br>
-                    <strong>国家:</strong> ${ipapiData.country_name}<br>
-                    <strong>地区:</strong> ${ipapiData.region}<br>
-                    <strong>城市:</strong> ${ipapiData.city}<br>
-                    <strong>ISP:</strong> ${ipapiData.org}<br>
-                    <strong>经纬度:</strong> ${ipapiData.latitude}, ${ipapiData.longitude}<br>
-                    <strong>时区:</strong> ${ipapiData.timezone}<br>
-                    <strong>邮政编码:</strong> ${ipapiData.postal}<br>
-                    <strong>ASN:</strong> ${ipapiData.asn}<br>
-                    <strong>代理状态:</strong> ${ipapiData.proxy ? '检测到代理' : '未检测到代理'}<br>
-                    <br>
-                `;
-            }
+            return await res.json();
+        } finally {
+            window.clearTimeout(id);
+        }
+    }
 
-            if (ipApiComResult.status === 'fulfilled') {
-                var ipApiComData = ipApiComResult.value;
-                info += `
-                    <h3>国际 API 2 (IP-API.com)</h3>
-                    <strong>IP:</strong> ${ipApiComData.query}<br>
-                    <strong>国家:</strong> ${ipApiComData.country}<br>
-                    <strong>地区:</strong> ${ipApiComData.regionName}<br>
-                    <strong>城市:</strong> ${ipApiComData.city}<br>
-                    <strong>ISP:</strong> ${ipApiComData.isp}<br>
-                    <strong>经纬度:</strong> ${ipApiComData.lat}, ${ipApiComData.lon}<br>
-                    <strong>时区:</strong> ${ipApiComData.timezone}<br>
-                    <strong>邮政编码:</strong> ${ipApiComData.zip}<br>
-                    <strong>AS:</strong> ${ipApiComData.as}<br>
-                    <strong>代理状态:</strong> ${ipApiComData.proxy ? '检测到代理' : '未检测到代理'}<br>
-                `;
-            }
+    function createSourceCard({ name, ok, data, error }) {
+        const card = document.createElement('div');
+        card.className = 'source-card';
 
-            if (info === '') {
-                info = "获取IP信息失败，请稍后再试。";
-            }
+        const head = document.createElement('div');
+        head.className = 'source-head';
 
-            document.getElementById("ip-info").innerHTML = info;
-        })
-        .catch(error => {
-            document.getElementById("ip-info").textContent = "获取IP信息失败，请稍后再试。";
-            console.error('Error:', error);
+        const title = document.createElement('div');
+        title.className = 'source-name';
+        title.textContent = name;
+
+        const badge = document.createElement('span');
+        badge.className = `badge ${ok ? 'ok' : 'fail'}`;
+        badge.textContent = ok ? '成功' : '失败';
+
+        head.appendChild(title);
+        head.appendChild(badge);
+        card.appendChild(head);
+
+        if (!ok) {
+            const p = document.createElement('div');
+            p.className = 'error';
+            p.textContent = error || '请求失败';
+            card.appendChild(p);
+            return card;
+        }
+
+        const dl = document.createElement('dl');
+
+        const addKV = (k, v) => {
+            if (v === undefined || v === null || v === '') return;
+            const dt = document.createElement('dt');
+            dt.textContent = k;
+            const dd = document.createElement('dd');
+            dd.textContent = String(v);
+            dl.appendChild(dt);
+            dl.appendChild(dd);
+        };
+
+        for (const [k, v] of data) addKV(k, v);
+        card.appendChild(dl);
+
+        return card;
+    }
+
+    function setQRCodePlaceholder() {
+        const type = $('qr-type').value;
+        const input = $('qr-input');
+        input.placeholder = type === 'url' ? 'https://example.com' : '请输入文本';
+    }
+
+    function clearQRCode() {
+        $('qrcode').innerHTML = '';
+        $('qr-download-btn').disabled = true;
+        setHidden($('qr-error'), true);
+        $('qr-error').textContent = '';
+    }
+
+    function generateQR() {
+        const inputRaw = $('qr-input').value;
+        const text = String(inputRaw || '').trim();
+
+        if (!text) {
+            $('qr-error').textContent = '请输入内容';
+            setHidden($('qr-error'), false);
+            return;
+        }
+
+        clearQRCode();
+
+        const size = Number($('qr-size').value) || 256;
+
+        try {
+            // eslint-disable-next-line no-new
+            new QRCode($('qrcode'), {
+                text,
+                width: size,
+                height: size,
+                colorDark: '#5a67d8',
+                colorLight: '#ffffff',
+                correctLevel: QRCode.CorrectLevel.H
+            });
+
+            $('qr-download-btn').disabled = false;
+            showToast('二维码已生成');
+        } catch (e) {
+            $('qr-error').textContent = `生成失败：${e && e.message ? e.message : '未知错误'}`;
+            setHidden($('qr-error'), false);
+        }
+    }
+
+    function downloadQR() {
+        const container = $('qrcode');
+        const canvas = container.querySelector('canvas');
+        const img = container.querySelector('img');
+
+        let dataUrl = '';
+        if (canvas && canvas.toDataURL) {
+            dataUrl = canvas.toDataURL('image/png');
+        } else if (img && img.src) {
+            dataUrl = img.src;
+        }
+
+        if (!dataUrl) {
+            showToast('当前二维码不支持下载');
+            return;
+        }
+
+        const a = document.createElement('a');
+        a.href = dataUrl;
+        a.download = 'qrcode.png';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    }
+
+    function generateUUIDs() {
+        const count = Math.max(1, Math.min(50, Number($('uuid-count').value) || 1));
+        $('uuid-count').value = String(count);
+        const format = $('uuid-format').value;
+
+        const uuids = [];
+        for (let i = 0; i < count; i++) {
+            const raw = (crypto && typeof crypto.randomUUID === 'function')
+                ? crypto.randomUUID()
+                : generateUUIDv4Fallback();
+            uuids.push(normalizeUUID(raw, format));
+        }
+
+        $('uuid-result').value = uuids.join('\n');
+        $('uuid-copy-btn').disabled = uuids.length === 0;
+        showToast(`已生成 ${count} 个 UUID`);
+    }
+
+    async function copyUUIDResult() {
+        const text = $('uuid-result').value;
+        const ok = await copyText(text);
+        showToast(ok ? 'UUID 已复制' : '复制失败');
+    }
+
+    function clearUUID() {
+        $('uuid-result').value = '';
+        $('uuid-copy-btn').disabled = true;
+    }
+
+    const IP_CACHE_KEY = 'ipToolCache:v1';
+    const IP_CACHE_TTL_MS = 30 * 60 * 1000;
+
+    function readIPCache() {
+        const raw = localStorage.getItem(IP_CACHE_KEY);
+        if (!raw) return {};
+        try {
+            const parsed = JSON.parse(raw);
+            if (!parsed || typeof parsed !== 'object') return {};
+            return parsed;
+        } catch {
+            return {};
+        }
+    }
+
+    function writeIPCache(cache) {
+        localStorage.setItem(IP_CACHE_KEY, JSON.stringify(cache));
+    }
+
+    function clearIPCache() {
+        localStorage.removeItem(IP_CACHE_KEY);
+        showToast('缓存已清除');
+    }
+
+    function buildIPSummaryText(results) {
+        const lines = [];
+        for (const r of results) {
+            lines.push(`[${r.name}] ${r.ok ? '成功' : '失败'}`);
+            if (r.ok) {
+                for (const [k, v] of r.data) {
+                    if (v === undefined || v === null || v === '') continue;
+                    lines.push(`- ${k}: ${v}`);
+                }
+            } else {
+                lines.push(`- 错误: ${r.error || '请求失败'}`);
+            }
+            lines.push('');
+        }
+        return lines.join('\n').trim();
+    }
+
+    async function getIPInfo({ useCache = true } = {}) {
+        const ip = String($('ip-input').value || '').trim();
+
+        setHidden($('ip-error'), true);
+        $('ip-error').textContent = '';
+
+        if (!isValidIP(ip)) {
+            $('ip-error').textContent = 'IP 格式不正确（支持 IPv4 / IPv6）。';
+            setHidden($('ip-error'), false);
+            return;
+        }
+
+        const cacheKey = ip || '__self__';
+        const cache = readIPCache();
+        const cachedItem = cache[cacheKey];
+
+        if (useCache && cachedItem && (Date.now() - cachedItem.ts) < IP_CACHE_TTL_MS) {
+            renderIPInfo(cachedItem.results, { fromCache: true });
+            $('ip-copy-btn').disabled = false;
+            showToast('已加载缓存');
+            return;
+        }
+
+        $('ip-info').innerHTML = '<div style="text-align:center;color:#5a67d8;">正在查询 IP 信息...</div>';
+        $('ip-copy-btn').disabled = true;
+
+        const endpoints = [
+            {
+                name: 'UseragentInfo（国内）',
+                url: `https://ip.useragentinfo.com/json${ip ? `?ip=${encodeURIComponent(ip)}` : ''}`,
+                map: (d) => [
+                    ['IP', d.ip],
+                    ['国家', d.country],
+                    ['省份', d.province],
+                    ['城市', d.city],
+                    ['ISP', d.isp],
+                    ['网络类型', d.net_str]
+                ]
+            },
+            {
+                name: 'IPAPI.co（国际）',
+                url: ip ? `https://ipapi.co/${encodeURIComponent(ip)}/json/` : 'https://ipapi.co/json/',
+                map: (d) => {
+                    if (d && d.error) throw new Error(d.reason || 'API 返回错误');
+                    return [
+                        ['IP', d.ip],
+                        ['国家', d.country_name],
+                        ['地区', d.region],
+                        ['城市', d.city],
+                        ['ISP/组织', d.org],
+                        ['ASN', d.asn],
+                        ['经纬度', (d.latitude && d.longitude) ? `${d.latitude}, ${d.longitude}` : ''],
+                        ['时区', d.timezone],
+                        ['邮编', d.postal],
+                        ['代理/转发', d.proxy === true ? '检测到代理' : (d.proxy === false ? '未检测到代理' : '')]
+                    ];
+                }
+            },
+            {
+                name: 'ipwho.is（国际）',
+                url: ip ? `https://ipwho.is/${encodeURIComponent(ip)}` : 'https://ipwho.is/',
+                map: (d) => {
+                    if (d && d.success === false) throw new Error(d.message || 'API 返回失败');
+                    return [
+                        ['IP', d.ip],
+                        ['国家', d.country],
+                        ['地区', d.region],
+                        ['城市', d.city],
+                        ['ISP', d.connection && d.connection.isp],
+                        ['ASN', d.connection && d.connection.asn],
+                        ['经纬度', (d.latitude && d.longitude) ? `${d.latitude}, ${d.longitude}` : ''],
+                        ['时区', d.timezone && d.timezone.id]
+                    ];
+                }
+            },
+            {
+                name: 'IPInfo.io（国际）',
+                url: ip ? `https://ipinfo.io/${encodeURIComponent(ip)}/json` : 'https://ipinfo.io/json',
+                map: (d) => {
+                    const loc = d.loc ? String(d.loc) : '';
+                    return [
+                        ['IP', d.ip],
+                        ['国家', d.country],
+                        ['地区', d.region],
+                        ['城市', d.city],
+                        ['组织', d.org],
+                        ['经纬度', loc],
+                        ['时区', d.timezone],
+                        ['邮编', d.postal]
+                    ];
+                }
+            }
+        ];
+
+        const settled = await Promise.allSettled(
+            endpoints.map(async (ep) => {
+                const json = await fetchJson(ep.url, { timeoutMs: 7000 });
+                const mapped = ep.map(json);
+                return { name: ep.name, ok: true, data: mapped };
+            })
+        );
+
+        const results = settled.map((r, idx) => {
+            const name = endpoints[idx].name;
+            if (r.status === 'fulfilled') return r.value;
+            return { name, ok: false, error: r.reason && r.reason.message ? r.reason.message : String(r.reason || '请求失败') };
         });
+
+        const anyOk = results.some((r) => r.ok);
+        if (!anyOk) {
+            $('ip-error').textContent = '所有来源均查询失败，请稍后再试或更换网络环境。';
+            setHidden($('ip-error'), false);
+        }
+
+        cache[cacheKey] = { ts: Date.now(), results };
+        writeIPCache(cache);
+
+        renderIPInfo(results, { fromCache: false });
+        $('ip-copy-btn').disabled = false;
     }
+
+    function renderIPInfo(results, { fromCache }) {
+        const host = $('ip-info');
+        host.innerHTML = '';
+
+        const meta = document.createElement('div');
+        meta.className = 'hint';
+        meta.style.marginBottom = '10px';
+        meta.textContent = fromCache ? '显示缓存数据（30分钟内有效）' : '显示最新查询结果';
+        host.appendChild(meta);
+
+        const grid = document.createElement('div');
+        grid.className = 'ip-sources';
+
+        for (const r of results) {
+            grid.appendChild(createSourceCard(r));
+        }
+
+        host.appendChild(grid);
+
+        $('ip-copy-btn').onclick = async () => {
+            const text = buildIPSummaryText(results);
+            const ok = await copyText(text);
+            showToast(ok ? '已复制汇总' : '复制失败');
+        };
+    }
+
+    function useCurrentIP() {
+        $('ip-input').value = '';
+        getIPInfo();
+    }
+
+    // Events
+    $('qr-type').addEventListener('change', setQRCodePlaceholder);
+    $('qr-size').addEventListener('input', () => {
+        $('qr-size-label').textContent = String($('qr-size').value);
+    });
+    $('qr-generate-btn').addEventListener('click', generateQR);
+    $('qr-clear-btn').addEventListener('click', clearQRCode);
+    $('qr-download-btn').addEventListener('click', downloadQR);
+
+    $('uuid-generate-btn').addEventListener('click', generateUUIDs);
+    $('uuid-copy-btn').addEventListener('click', copyUUIDResult);
+    $('uuid-clear-btn').addEventListener('click', clearUUID);
+
+    $('ip-query-btn').addEventListener('click', () => getIPInfo({ useCache: true }));
+    $('ip-my-btn').addEventListener('click', useCurrentIP);
+    $('ip-clear-cache-btn').addEventListener('click', clearIPCache);
+
+    // Init
+    setQRCodePlaceholder();
+    $('qr-size-label').textContent = String($('qr-size').value);
 </script>
 </body>
 </html>

@@ -135,6 +135,20 @@
       border-bottom: 2px solid var(--accent);
     }
 
+    .panel-code,
+    .panel-write {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .panel-code.hidden,
+    .panel-write.hidden {
+      display: none;
+    }
+
     .panel {
       background: var(--bg);
       border: 1px solid var(--border);
@@ -298,12 +312,8 @@
       contain: layout style paint;
     }
 
-    .panel .card-header {
+    .panel .panel-header {
       border-radius: 0;
-    }
-
-    .body {
-      padding: 16px;
     }
 
     textarea {
@@ -511,10 +521,10 @@
       <button class="tab" data-tab="write" role="tab" id="tab-write">撰写视图</button>
     </nav>
 
-    <section class="card" id="panel-code" role="tabpanel" aria-labelledby="tab-code">
-      <div class="card-header">
+    <section class="panel-code" id="panel-code" role="tabpanel" aria-labelledby="tab-code">
+      <div class="panel-header">
         <div>
-          <div class="card-title">转换工作台</div>
+          <div class="panel-title">转换工作台</div>
           <div class="meta" id="codeMeta">输入：-</div>
         </div>
 
@@ -569,10 +579,10 @@
       </div>
     </section>
 
-    <section class="card hidden" id="panel-write" role="tabpanel" aria-labelledby="tab-write">
-      <div class="card-header">
+    <section class="panel-write hidden" id="panel-write" role="tabpanel" aria-labelledby="tab-write">
+      <div class="panel-header">
         <div>
-          <div class="card-title">撰写模式（Quill）</div>
+          <div class="panel-title">撰写模式（Quill）</div>
           <div class="meta" id="writeMeta">-</div>
         </div>
 

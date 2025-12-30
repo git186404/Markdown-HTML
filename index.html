@@ -795,7 +795,23 @@
 
     const turndownService = new TurndownService({
       codeBlockStyle: 'fenced',
-      emDelimiter: '_',
+      emDelimiter: '*',
+      preformattedCode: true,
+      headingStyle: 'atx',
+    });
+
+    // Turndown rule for inline code - properly escape backticks
+    turndownService.addRule('inlineCode', {
+      filter: function (node) {
+        return node.nodeName === 'CODE' && !node.querySelector('pre');
+      },
+      replacement: function (content) {
+        // Escape backticks and tildes within the content
+        const escaped = content
+          .replace(/`/g, '\\`')
+          .replace(/~/g, '\\~');
+        return '`' + escaped + '`';
+      }
     });
 
     function showToast(message) {
@@ -831,7 +847,17 @@
     }
 
     function markdownToHtml(markdown) {
-      return marked(markdown || '');
+      if (typeof marked !== 'function') return '';
+      const rawMarkdown = markdown || '';
+      // Configure marked options for better GFM support
+      marked.setOptions({
+        gfm: true,
+        breaks: true,
+        headerIds: true,
+        langPrefix: 'language-',
+        mangle: false,
+      });
+      return marked(rawMarkdown);
     }
 
     function htmlToMarkdown(html) {
